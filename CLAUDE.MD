@@ -2,183 +2,256 @@
 
 ## Project Overview
 
-This document provides context and guidance for Claude AI when working with this codebase.
-
 ### Purpose
 
-[Describe the main purpose and goals of this project]
+Life Logging Tracker - A simple CLI tool for daily life tracking including mood, weight, todos, and medication (Retatrutide) tracking. Designed for personal use with local JSON file storage.
 
 ### Technology Stack
 
-- **Languages**: [e.g., Python, JavaScript, TypeScript, etc.]
-- **Frameworks**: [e.g., React, Django, Express, etc.]
-- **Database**: [e.g., PostgreSQL, MongoDB, etc.]
-- **Tools**: [e.g., Docker, npm, pip, etc.]
+- **Languages**: Python 3
+- **Storage**: JSON files (no database required)
+- **Tools**: Standard library only (no external dependencies)
 
 ## Project Structure
 
 ```
 /
-├── src/           # Source code
-├── tests/         # Test files
-├── docs/          # Documentation
-└── config/        # Configuration files
+├── lifelog           # Convenience shell wrapper script
+├── src/
+│   └── lifelog.py    # Main CLI application
+├── data/
+│   ├── mood/         # Monthly mood tracking JSON files
+│   ├── weight/       # Monthly weight tracking JSON files
+│   ├── todos/        # Todo list JSON file
+│   └── retatrutide/  # Monthly Retatrutide tracking JSON files
+└── CLAUDE.MD         # This file
 ```
-
-[Update this structure to match your actual project layout]
 
 ## Development Setup
 
 ### Prerequisites
 
-- [List required software, versions, etc.]
+- Python 3.6+
 
 ### Installation
 
 ```bash
 # Clone the repository
 git clone <repository-url>
+cd Playground-
 
-# Install dependencies
-[installation commands]
-
-# Set up environment variables
-[environment setup]
+# Make scripts executable (already done)
+chmod +x lifelog src/lifelog.py
 ```
 
-### Running Locally
+### Running
 
 ```bash
-# Start development server
-[run commands]
+# Using the wrapper script
+./lifelog <command>
+
+# Or directly with Python
+python3 src/lifelog.py <command>
 ```
 
-### Testing
+## Usage
+
+### Mood Tracking
 
 ```bash
-# Run tests
-[test commands]
+# Log mood (1-10 scale)
+./lifelog mood 7
+./lifelog mood 8 --notes "Great day at work"
+./lifelog mood 6 --energy 7 --anxiety 3
+
+# View mood summary
+./lifelog mood --summary
+./lifelog mood --summary --days 14
+```
+
+**Mood Scale:**
+- 1-2: Very Low/Low
+- 3-4: Below Average/Slightly Low
+- 5: Neutral
+- 6-7: Slightly Good/Good
+- 8-9: Very Good/Great
+- 10: Excellent
+
+### Weight Tracking
+
+```bash
+# Log weight
+./lifelog weight 180.5
+./lifelog weight 82 --unit kg
+./lifelog weight 179 --notes "After morning workout"
+
+# View weight summary
+./lifelog weight --summary
+./lifelog weight --summary --days 30
+```
+
+### Todo Management
+
+```bash
+# Add todos
+./lifelog todo add "Buy groceries"
+./lifelog todo add "Call doctor" --priority high
+./lifelog todo add "Submit report" --due 2026-01-20
+
+# List todos
+./lifelog todo list
+./lifelog todo list --all  # Include completed
+
+# Complete a todo
+./lifelog todo done 1
+
+# Delete a todo
+./lifelog todo delete 2
+```
+
+**Priority Levels:**
+- `high` - Displayed with [!]
+- `medium` - Displayed with [-] (default)
+- `low` - Displayed with [ ]
+
+### Retatrutide Tracking
+
+```bash
+# Log injection
+./lifelog reta 2.0
+./lifelog reta 4.0 --site "left abdomen"
+./lifelog reta 4.0 --notes "Slight redness at site"
+
+# View history and schedule
+./lifelog reta --summary
+```
+
+**Standard Titration Schedule:**
+- Weeks 1-4: 0.5 mg/week
+- Weeks 5-8: 1.0 mg/week
+- Weeks 9-12: 2.0 mg/week
+- Weeks 13-16: 4.0 mg/week
+- Weeks 17-20: 8.0 mg/week
+- Weeks 21+: 12.0 mg/week (maintenance)
+
+### Daily Summary
+
+```bash
+# View comprehensive daily summary
+./lifelog summary
+./lifelog  # Default action shows summary
+```
+
+## Data Storage
+
+All data is stored in JSON files organized by month (except todos):
+
+- `data/mood/YYYY-MM.json` - Monthly mood entries
+- `data/weight/YYYY-MM.json` - Monthly weight entries
+- `data/retatrutide/YYYY-MM.json` - Monthly medication entries
+- `data/todos/todos.json` - Persistent todo list
+
+### Data Format Examples
+
+**Mood Entry:**
+```json
+{
+  "date": "2026-01-14",
+  "timestamp": "2026-01-14T10:30:00",
+  "score": 7,
+  "label": "Good",
+  "notes": "Productive morning",
+  "energy": 8,
+  "anxiety": 3
+}
+```
+
+**Weight Entry:**
+```json
+{
+  "date": "2026-01-14",
+  "timestamp": "2026-01-14T07:00:00",
+  "weight": 180.5,
+  "unit": "lbs",
+  "notes": "Morning weigh-in"
+}
+```
+
+**Todo Entry:**
+```json
+{
+  "id": 1,
+  "task": "Buy groceries",
+  "priority": "high",
+  "created": "2026-01-14T09:00:00",
+  "due": "2026-01-15",
+  "status": "pending"
+}
+```
+
+**Retatrutide Entry:**
+```json
+{
+  "date": "2026-01-14",
+  "timestamp": "2026-01-14T08:00:00",
+  "dose_mg": 4.0,
+  "injection_site": "left abdomen",
+  "notes": ""
+}
 ```
 
 ## Key Files and Components
 
 ### Core Files
 
-- `[filename]`: [Description of what this file does]
-- `[filename]`: [Description of what this file does]
+- `src/lifelog.py`: Main CLI application with all tracking functionality
+- `lifelog`: Shell wrapper for convenient invocation
 
 ### Important Patterns
 
-- [Describe any important architectural patterns, coding conventions, or design decisions]
+- Monthly JSON files for time-series data (mood, weight, medication)
+- Single JSON file for stateful data (todos)
+- All dates in ISO 8601 format
+- Timestamps stored for precise tracking
 
 ## Development Guidelines
 
 ### Code Style
 
-- [Formatting preferences, linting rules, etc.]
-- [Naming conventions]
+- Python 3.6+ compatible
+- Standard library only (no pip dependencies)
+- Type hints for function parameters
+- Clear docstrings for functions
 
 ### Git Workflow
 
-- **Main Branch**: `main` or `master`
-- **Feature Branches**: `feature/<name>` or `claude/<name>`
-- **Commit Messages**: [Convention for commit messages]
-
-### Testing Requirements
-
-- [When tests are required]
-- [Coverage expectations]
-
-## Common Tasks
-
-### Adding a New Feature
-
-1. [Step-by-step process]
-2. [Files typically involved]
-3. [Testing approach]
-
-### Debugging
-
-- [Common debugging approaches]
-- [Useful commands]
-- [Log locations]
-
-## Dependencies
-
-### Key Dependencies
-
-- `[package-name]`: [Why it's used, version constraints]
-- `[package-name]`: [Why it's used, version constraints]
-
-### Updating Dependencies
-
-```bash
-[commands to update dependencies]
-```
-
-## API Documentation
-
-[If applicable: API endpoints, authentication, request/response formats]
-
-## Configuration
-
-### Environment Variables
-
-- `VAR_NAME`: [Description and example value]
-- `VAR_NAME`: [Description and example value]
-
-### Configuration Files
-
-- `[config-file]`: [Purpose and key settings]
-
-## Deployment
-
-### Production Deployment
-
-[Steps or commands for deploying to production]
-
-### Staging/Testing Environments
-
-[Information about non-production environments]
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue**: [Problem description]
-- **Solution**: [How to fix it]
-
-**Issue**: [Problem description]
-- **Solution**: [How to fix it]
-
-## Additional Resources
-
-- [Links to external documentation]
-- [Related repositories]
-- [Team contacts or resources]
+- **Main Branch**: `main`
+- **Feature Branches**: `claude/<feature-name>-<id>`
+- **Commit Messages**: Descriptive present tense
 
 ## Notes for Claude AI
 
 ### Project-Specific Guidance
 
-- [Any special considerations when modifying code]
-- [Areas that require extra care]
-- [Known technical debt or limitations]
+- This is a personal life logging tool - keep it simple and focused
+- No external dependencies - use only Python standard library
+- Data is stored locally in JSON files - no database setup needed
+- Monthly file rotation keeps individual files manageable
 
 ### Testing Strategy
 
-- [When to run tests]
-- [How to validate changes]
+- Run `./lifelog summary` to verify tool is working
+- Test each subcommand manually
+- Check JSON files in `data/` directory for correct formatting
 
-### Code Review Checklist
+### Future Enhancement Ideas
 
-- [ ] Code follows project style guidelines
-- [ ] Tests are included and passing
-- [ ] Documentation is updated
-- [ ] No sensitive data is committed
-- [ ] Breaking changes are documented
+- Export to CSV functionality
+- Data visualization/charts
+- Backup/sync functionality
+- Web interface
 
 ---
 
-**Last Updated**: 2026-01-13
-**Maintained By**: [Your name or team]
+**Last Updated**: 2026-01-14
+**Maintained By**: Life Logging Project

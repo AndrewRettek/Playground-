@@ -1,0 +1,29 @@
+# Data files (personal tracking data)
+data/mood/*.json
+data/weight/*.json
+data/todos/*.json
+data/retatrutide/*.json
+
+# Keep the data directory structure
+!data/*/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
