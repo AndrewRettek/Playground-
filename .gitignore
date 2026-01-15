@@ -3,6 +3,11 @@ data/mood/*.json
 data/weight/*.json
 data/todos/*.json
 data/retatrutide/*.json
+data/oura/*.json
+
+# Config files (contains API tokens)
+config/*.json
+!config/.gitkeep
 
 # Keep the data directory structure
 !data/*/.gitkeep

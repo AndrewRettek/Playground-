@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 """
 Life Logging CLI Tool
-Tracks mood, weight, todos, and Retatrutide dosing.
+Tracks mood, weight, todos, Retatrutide dosing, and Oura Ring data.
 """
 
 import json
 import os
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from pathlib import Path
 import argparse
 import sys
+import urllib.request
+import urllib.error
 
-# Base data directory
+# Base directories
 DATA_DIR = Path(__file__).parent.parent / "data"
+CONFIG_DIR = Path(__file__).parent.parent / "config"
 
 
 def ensure_data_dirs():
     """Ensure all data directories exist."""
-    for subdir in ["mood", "weight", "todos", "retatrutide"]:
+    for subdir in ["mood", "weight", "todos", "retatrutide", "oura"]:
         (DATA_DIR / subdir).mkdir(parents=True, exist_ok=True)
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_today_str():
@@ -393,6 +397,313 @@ def show_retatrutide_summary():
 
 
 # =============================================================================
+# OURA RING INTEGRATION
+# =============================================================================
+
+OURA_API_BASE = "https://api.ouraring.com/v2/usercollection"
+
+
+def get_config_file() -> Path:
+    """Get the config file path."""
+    return CONFIG_DIR / "config.json"
+
+
+def load_config() -> dict:
+    """Load configuration."""
+    filepath = get_config_file()
+    if filepath.exists():
+        with open(filepath, "r") as f:
+            return json.load(f)
+    return {}
+
+
+def save_config(config: dict):
+    """Save configuration."""
+    filepath = get_config_file()
+    with open(filepath, "w") as f:
+        json.dump(config, f, indent=2)
+
+
+def set_oura_token(token: str):
+    """Set the Oura API token."""
+    config = load_config()
+    config["oura_token"] = token
+    save_config(config)
+    print("Oura API token saved successfully.")
+
+
+def get_oura_token() -> str:
+    """Get the Oura API token."""
+    config = load_config()
+    token = config.get("oura_token")
+    if not token:
+        # Also check environment variable
+        token = os.environ.get("OURA_TOKEN")
+    return token
+
+
+def oura_api_request(endpoint: str, params: dict = None) -> dict:
+    """Make a request to the Oura API."""
+    token = get_oura_token()
+    if not token:
+        print("Error: Oura API token not set.")
+        print("Run: ./lifelog oura token YOUR_TOKEN")
+        return None
+
+    url = f"{OURA_API_BASE}/{endpoint}"
+    if params:
+        query_string = "&".join(f"{k}={v}" for k, v in params.items())
+        url = f"{url}?{query_string}"
+
+    req = urllib.request.Request(url)
+    req.add_header("Authorization", f"Bearer {token}")
+
+    try:
+        with urllib.request.urlopen(req, timeout=30) as response:
+            return json.loads(response.read().decode())
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            print("Error: Invalid Oura API token. Please update your token.")
+        elif e.code == 429:
+            print("Error: Rate limited. Please wait before trying again.")
+        else:
+            print(f"Error: Oura API returned {e.code}: {e.reason}")
+        return None
+    except urllib.error.URLError as e:
+        print(f"Error: Could not connect to Oura API: {e.reason}")
+        return None
+
+
+def sync_oura_data(date_str: str = None):
+    """Sync Oura data for a specific date."""
+    if date_str is None:
+        date_str = get_today_str()
+
+    # For Oura API, we need to query a range
+    # Sleep data is attributed to the day you wake up
+    start_date = date_str
+    end_date = (datetime.fromisoformat(date_str) + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    print(f"Syncing Oura data for {date_str}...")
+
+    synced = {}
+
+    # Fetch sleep data
+    sleep_data = oura_api_request("daily_sleep", {"start_date": start_date, "end_date": end_date})
+    if sleep_data and sleep_data.get("data"):
+        synced["sleep"] = sleep_data["data"]
+        print(f"  Sleep: {len(sleep_data['data'])} record(s)")
+
+    # Fetch readiness data
+    readiness_data = oura_api_request("daily_readiness", {"start_date": start_date, "end_date": end_date})
+    if readiness_data and readiness_data.get("data"):
+        synced["readiness"] = readiness_data["data"]
+        print(f"  Readiness: {len(readiness_data['data'])} record(s)")
+
+    # Fetch activity data
+    activity_data = oura_api_request("daily_activity", {"start_date": start_date, "end_date": end_date})
+    if activity_data and activity_data.get("data"):
+        synced["activity"] = activity_data["data"]
+        print(f"  Activity: {len(activity_data['data'])} record(s)")
+
+    # Fetch heart rate data
+    hr_data = oura_api_request("heartrate", {"start_datetime": f"{start_date}T00:00:00", "end_datetime": f"{end_date}T00:00:00"})
+    if hr_data and hr_data.get("data"):
+        synced["heart_rate"] = hr_data["data"]
+        print(f"  Heart Rate: {len(hr_data['data'])} reading(s)")
+
+    if not synced:
+        print("No data found for this date.")
+        return False
+
+    # Save to monthly file
+    data = load_month_data("oura")
+
+    # Update or add entry for this date
+    existing_idx = None
+    for i, entry in enumerate(data["entries"]):
+        if entry.get("date") == date_str:
+            existing_idx = i
+            break
+
+    entry = {
+        "date": date_str,
+        "synced_at": datetime.now().isoformat(),
+        **synced
+    }
+
+    if existing_idx is not None:
+        data["entries"][existing_idx] = entry
+    else:
+        data["entries"].append(entry)
+
+    save_month_data("oura", data)
+    print(f"Oura data saved for {date_str}")
+    return True
+
+
+def get_oura_data_for_date(date_str: str = None) -> dict:
+    """Get cached Oura data for a specific date."""
+    if date_str is None:
+        date_str = get_today_str()
+
+    data = load_month_data("oura")
+    for entry in data.get("entries", []):
+        if entry.get("date") == date_str:
+            return entry
+    return None
+
+
+def show_oura_sleep(date_str: str = None):
+    """Show Oura sleep data."""
+    if date_str is None:
+        date_str = get_today_str()
+
+    entry = get_oura_data_for_date(date_str)
+
+    print(f"\n{'='*50}")
+    print(f"OURA SLEEP - {date_str}")
+    print(f"{'='*50}")
+
+    if not entry or not entry.get("sleep"):
+        print("No sleep data found. Run: ./lifelog oura sync")
+        return
+
+    for sleep in entry["sleep"]:
+        score = sleep.get("score")
+        if score:
+            print(f"\nSleep Score: {score}")
+
+        contributors = sleep.get("contributors", {})
+        if contributors:
+            print("\nContributors:")
+            for key, value in contributors.items():
+                if value is not None:
+                    print(f"  {key.replace('_', ' ').title()}: {value}")
+
+
+def show_oura_readiness(date_str: str = None):
+    """Show Oura readiness data."""
+    if date_str is None:
+        date_str = get_today_str()
+
+    entry = get_oura_data_for_date(date_str)
+
+    print(f"\n{'='*50}")
+    print(f"OURA READINESS - {date_str}")
+    print(f"{'='*50}")
+
+    if not entry or not entry.get("readiness"):
+        print("No readiness data found. Run: ./lifelog oura sync")
+        return
+
+    for readiness in entry["readiness"]:
+        score = readiness.get("score")
+        if score:
+            print(f"\nReadiness Score: {score}")
+
+        contributors = readiness.get("contributors", {})
+        if contributors:
+            print("\nContributors:")
+            for key, value in contributors.items():
+                if value is not None:
+                    print(f"  {key.replace('_', ' ').title()}: {value}")
+
+
+def show_oura_activity(date_str: str = None):
+    """Show Oura activity data."""
+    if date_str is None:
+        date_str = get_today_str()
+
+    entry = get_oura_data_for_date(date_str)
+
+    print(f"\n{'='*50}")
+    print(f"OURA ACTIVITY - {date_str}")
+    print(f"{'='*50}")
+
+    if not entry or not entry.get("activity"):
+        print("No activity data found. Run: ./lifelog oura sync")
+        return
+
+    for activity in entry["activity"]:
+        score = activity.get("score")
+        if score:
+            print(f"\nActivity Score: {score}")
+
+        print(f"\nMetrics:")
+        metrics = [
+            ("steps", "Steps"),
+            ("active_calories", "Active Calories"),
+            ("total_calories", "Total Calories"),
+            ("equivalent_walking_distance", "Walking Distance (m)"),
+            ("low_activity_time", "Low Activity (min)"),
+            ("medium_activity_time", "Medium Activity (min)"),
+            ("high_activity_time", "High Activity (min)"),
+        ]
+        for key, label in metrics:
+            value = activity.get(key)
+            if value is not None:
+                print(f"  {label}: {value}")
+
+
+def show_oura_summary(date_str: str = None, days: int = 7):
+    """Show Oura summary for recent days."""
+    if date_str is None:
+        date_str = get_today_str()
+
+    print(f"\n{'='*50}")
+    print(f"OURA SUMMARY (Last {days} days)")
+    print(f"{'='*50}")
+
+    data = load_month_data("oura")
+    entries = data.get("entries", [])
+
+    if not entries:
+        print("No Oura data found. Run: ./lifelog oura sync")
+        return
+
+    # Sort by date and get recent
+    entries = sorted(entries, key=lambda x: x.get("date", ""))
+    recent = entries[-days:] if len(entries) >= days else entries
+
+    print(f"\n{'Date':<12} {'Sleep':<8} {'Ready':<8} {'Active':<8} {'Steps':<8}")
+    print("-" * 50)
+
+    for entry in recent:
+        date_val = entry.get("date", "N/A")
+
+        sleep_score = "-"
+        if entry.get("sleep"):
+            sleep_score = str(entry["sleep"][0].get("score", "-"))
+
+        readiness_score = "-"
+        if entry.get("readiness"):
+            readiness_score = str(entry["readiness"][0].get("score", "-"))
+
+        activity_score = "-"
+        steps = "-"
+        if entry.get("activity"):
+            activity_score = str(entry["activity"][0].get("score", "-"))
+            steps = str(entry["activity"][0].get("steps", "-"))
+
+        print(f"{date_val:<12} {sleep_score:<8} {readiness_score:<8} {activity_score:<8} {steps:<8}")
+
+    # Calculate averages
+    sleep_scores = [e["sleep"][0]["score"] for e in recent if e.get("sleep") and e["sleep"][0].get("score")]
+    readiness_scores = [e["readiness"][0]["score"] for e in recent if e.get("readiness") and e["readiness"][0].get("score")]
+    activity_scores = [e["activity"][0]["score"] for e in recent if e.get("activity") and e["activity"][0].get("score")]
+
+    print("-" * 50)
+    if sleep_scores:
+        print(f"Avg Sleep: {sum(sleep_scores)/len(sleep_scores):.0f}", end="  ")
+    if readiness_scores:
+        print(f"Avg Readiness: {sum(readiness_scores)/len(readiness_scores):.0f}", end="  ")
+    if activity_scores:
+        print(f"Avg Activity: {sum(activity_scores)/len(activity_scores):.0f}")
+    print()
+
+
+# =============================================================================
 # DAILY SUMMARY
 # =============================================================================
 
@@ -439,7 +750,6 @@ def show_daily_summary():
     if entries:
         last_entry = entries[-1]
         last_date = datetime.fromisoformat(last_entry["timestamp"]).date()
-        from datetime import timedelta
         next_date = last_date + timedelta(days=7)
         days_until = (next_date - date.today()).days
 
@@ -449,6 +759,25 @@ def show_daily_summary():
             print(f"Retatrutide: Next dose in {days_until} days (current: {last_entry['dose_mg']} mg)")
     else:
         print(f"Retatrutide: No doses logged")
+
+    # Oura Ring
+    oura_entry = get_oura_data_for_date(today)
+    if oura_entry:
+        oura_parts = []
+        if oura_entry.get("sleep") and oura_entry["sleep"][0].get("score"):
+            oura_parts.append(f"Sleep: {oura_entry['sleep'][0]['score']}")
+        if oura_entry.get("readiness") and oura_entry["readiness"][0].get("score"):
+            oura_parts.append(f"Readiness: {oura_entry['readiness'][0]['score']}")
+        if oura_entry.get("activity") and oura_entry["activity"][0].get("score"):
+            oura_parts.append(f"Activity: {oura_entry['activity'][0]['score']}")
+            if oura_entry["activity"][0].get("steps"):
+                oura_parts.append(f"Steps: {oura_entry['activity'][0]['steps']}")
+        if oura_parts:
+            print(f"Oura: {' | '.join(oura_parts)}")
+        else:
+            print(f"Oura: Data synced but no scores available")
+    else:
+        print(f"Oura: Not synced today (run: ./lifelog oura sync)")
 
     print(f"\n{'='*60}")
 
@@ -461,7 +790,7 @@ def main():
     ensure_data_dirs()
 
     parser = argparse.ArgumentParser(
-        description="Life Logging CLI - Track mood, weight, todos, and Retatrutide",
+        description="Life Logging CLI - Track mood, weight, todos, Retatrutide, and Oura Ring data",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -472,6 +801,10 @@ Examples:
   %(prog)s todo done 1
   %(prog)s todo list
   %(prog)s reta 2.0 --site "left abdomen"
+  %(prog)s oura token YOUR_API_TOKEN
+  %(prog)s oura sync
+  %(prog)s oura sleep
+  %(prog)s oura --summary
   %(prog)s summary
         """
     )
@@ -520,6 +853,29 @@ Examples:
     reta_parser.add_argument("--notes", "-n", default="", help="Additional notes")
     reta_parser.add_argument("--summary", action="store_true", help="Show Retatrutide summary")
 
+    # Oura commands
+    oura_parser = subparsers.add_parser("oura", help="Oura Ring integration")
+    oura_subparsers = oura_parser.add_subparsers(dest="action", help="Oura actions")
+
+    oura_token = oura_subparsers.add_parser("token", help="Set Oura API token")
+    oura_token.add_argument("value", help="Your Oura API token")
+
+    oura_sync = oura_subparsers.add_parser("sync", help="Sync Oura data")
+    oura_sync.add_argument("--date", "-d", help="Date to sync (YYYY-MM-DD), defaults to today")
+    oura_sync.add_argument("--days", type=int, default=1, help="Number of days to sync (backwards from date)")
+
+    oura_sleep = oura_subparsers.add_parser("sleep", help="Show sleep data")
+    oura_sleep.add_argument("--date", "-d", help="Date to show (YYYY-MM-DD)")
+
+    oura_readiness = oura_subparsers.add_parser("readiness", help="Show readiness data")
+    oura_readiness.add_argument("--date", "-d", help="Date to show (YYYY-MM-DD)")
+
+    oura_activity = oura_subparsers.add_parser("activity", help="Show activity data")
+    oura_activity.add_argument("--date", "-d", help="Date to show (YYYY-MM-DD)")
+
+    oura_parser.add_argument("--summary", "-s", action="store_true", help="Show Oura summary")
+    oura_parser.add_argument("--days", type=int, default=7, help="Days to show in summary")
+
     # Summary command
     subparsers.add_parser("summary", help="Show daily summary")
 
@@ -559,6 +915,29 @@ Examples:
             show_retatrutide_summary()
         else:
             log_retatrutide(args.dose, args.site, args.notes)
+
+    elif args.command == "oura":
+        if args.action == "token":
+            set_oura_token(args.value)
+        elif args.action == "sync":
+            sync_date = args.date or get_today_str()
+            if args.days > 1:
+                # Sync multiple days
+                for i in range(args.days):
+                    d = (datetime.fromisoformat(sync_date) - timedelta(days=i)).strftime("%Y-%m-%d")
+                    sync_oura_data(d)
+            else:
+                sync_oura_data(sync_date)
+        elif args.action == "sleep":
+            show_oura_sleep(args.date)
+        elif args.action == "readiness":
+            show_oura_readiness(args.date)
+        elif args.action == "activity":
+            show_oura_activity(args.date)
+        elif args.summary or args.action is None:
+            show_oura_summary(days=args.days)
+        else:
+            show_oura_summary(days=args.days)
 
     elif args.command == "summary":
         show_daily_summary()
