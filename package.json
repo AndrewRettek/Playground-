@@ -1,0 +1,19 @@
+{
+  "name": "life-logging-app",
+  "version": "1.0.0",
+  "description": "A simple life logging app with mood, sleep, notes, photos, and fitness integrations",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start"
+  },
+  "keywords": ["life-logging", "mood-tracker", "health", "oura"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
