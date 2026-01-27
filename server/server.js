@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import axios from 'axios'
+import multer from 'multer'
+import { importWorkoutsFromExcel } from './controllers/workoutImportController.js'
 
 dotenv.config()
 
@@ -10,6 +12,25 @@ const PORT = process.env.PORT || 5000
 
 app.use(cors())
 app.use(express.json())
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/') // Store in uploads directory
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, uniqueSuffix + '-' + file.originalname)
+  }
+})
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+})
 
 // Oura API endpoints
 app.get('/api/oura/sleep', async (req, res) => {
@@ -107,6 +128,9 @@ app.get('/api/oura/readiness', async (req, res) => {
     })
   }
 })
+
+// Workout import endpoint
+app.post('/api/workouts/import', upload.single('file'), importWorkoutsFromExcel)
 
 // Health check
 app.get('/api/health', (req, res) => {

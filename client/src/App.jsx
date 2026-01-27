@@ -10,6 +10,7 @@ import Notes from './components/Notes'
 import Photos from './components/Photos'
 import OuraIntegration from './components/OuraIntegration'
 import WorkoutData from './components/WorkoutData'
+import WorkoutImport from './components/WorkoutImport'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -42,6 +43,7 @@ function App() {
         <Route path="/photos" element={user ? <Photos /> : <Navigate to="/login" />} />
         <Route path="/oura" element={user ? <OuraIntegration /> : <Navigate to="/login" />} />
         <Route path="/workouts" element={user ? <WorkoutData /> : <Navigate to="/login" />} />
+        <Route path="/workouts/import" element={user ? <WorkoutImport /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   )

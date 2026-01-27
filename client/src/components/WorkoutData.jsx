@@ -221,15 +221,17 @@ function WorkoutData() {
 
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-2">
-            Connect Fitness Apps
+            Import Workout Data
           </h3>
           <p className="text-blue-800 text-sm mb-4">
-            You can also sync workout data from popular fitness apps like Strava, Apple Health, or Google Fit.
-            Contact support to enable these integrations.
+            Import your workout data from MyoAdapt or other fitness apps. Upload an Excel file and we'll automatically parse and add your workouts.
           </p>
-          <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-            Coming Soon
-          </button>
+          <Link
+            to="/workouts/import"
+            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            Import from MyoAdapt
+          </Link>
         </div>
       </div>
     </div>

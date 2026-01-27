@@ -35,5 +35,9 @@ yarn-error.log*
 firebase-debug.log
 serviceAccountKey.json
 
+# Uploads (temporary files)
+server/uploads/*
+!server/uploads/.gitkeep
+
 # OS
 Thumbs.db
