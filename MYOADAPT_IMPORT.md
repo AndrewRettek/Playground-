@@ -5,7 +5,7 @@ This guide will help you import your workout data from MyoAdapt into your Life L
 ## Quick Start (3 Easy Steps)
 
 1. **Request export from MyoAdapt app**
-2. **Download the Excel file from your email**
+2. **Download the CSV or Excel file from your email**
 3. **Upload it to Life Logger → Workouts → Import**
 
 That's it! Your workouts will be automatically processed and added to your log.
@@ -20,13 +20,13 @@ That's it! Your workouts will be automatically processed and added to your log.
 2. Go to Settings or Profile
 3. Look for "Export Data" or "Download Data"
 4. Request an email export
-5. MyoAdapt will send you an email with an Excel file attached
+5. MyoAdapt will send you an email with a CSV or Excel file attached
 
-### Step 2: Download the Excel File
+### Step 2: Download the File
 
 1. Check your email for the MyoAdapt export
 2. Open the email
-3. Download the Excel attachment (.xlsx or .xls file)
+3. Download the attachment (.csv, .xlsx, or .xls file)
 4. Remember where you saved it (usually in Downloads folder)
 
 ### Step 3: Import to Life Logger
@@ -39,8 +39,8 @@ That's it! Your workouts will be automatically processed and added to your log.
 
 3. **Click "Import from MyoAdapt"** button at the bottom of the page
 
-4. **Upload your Excel file:**
-   - Drag and drop the file onto the upload area
+4. **Upload your file:**
+   - Drag and drop the CSV or Excel file onto the upload area
    - OR click "Select File" to browse for it
 
 5. **Click "Import Workouts"**
@@ -53,7 +53,7 @@ That's it! Your workouts will be automatically processed and added to your log.
 
 ## What Gets Imported
 
-When you import a MyoAdapt Excel file, the system automatically:
+When you import a MyoAdapt CSV or Excel file, the system automatically:
 
 - **Groups exercises by date** - All exercises from the same day become one workout entry
 - **Calculates total duration** - Adds up all set times, rest times, and warmup times
@@ -63,7 +63,7 @@ When you import a MyoAdapt Excel file, the system automatically:
 
 ### Example:
 
-If your Excel has 30 sets from Monday's workout across multiple exercises (Abs, Calves, Hamstrings, etc.), it will create **one workout entry** for Monday with:
+If your file has 30 sets from Monday's workout across multiple exercises (Abs, Calves, Hamstrings, etc.), it will create **one workout entry** for Monday with:
 - **Duration:** 45 minutes (calculated from all sets)
 - **Notes:** "Abs: Ab Roll Out, Calves: Single Leg, Hamstrings: Seated Ha, ..."
 - **Date:** Monday's date
@@ -77,14 +77,15 @@ If your Excel has 30 sets from Monday's workout across multiple exercises (Abs, 
 
 ### Import Failed: "Invalid file type"
 **Solution:**
-- Make sure you're uploading the Excel file from MyoAdapt
-- File must be .xlsx or .xls format
-- Don't convert to CSV or other formats
+- Make sure you're uploading the file from MyoAdapt
+- File must be .csv, .xlsx, or .xls format
+- Supported formats: CSV and Excel
 
 ### Import Failed: "No workout data found"
 **Solution:**
-- Check that the Excel file has data in it
+- Check that the file has data in it
 - Make sure it's the workout export, not a different MyoAdapt file
+- Verify the file has columns: Date, Exercise, Set time
 - Try requesting a new export from MyoAdapt
 
 ### Import Failed: "File too large"
@@ -146,7 +147,7 @@ Yes! Import as many times as you want. The system will:
 
 ## What If I Don't Use MyoAdapt?
 
-This importer is designed for MyoAdapt's Excel format, but it might work with similar fitness apps if they export data in a compatible format.
+This importer is designed for MyoAdapt's CSV/Excel format, but it might work with similar fitness apps if they export data in a compatible format.
 
 **Required columns:**
 - Date
@@ -160,7 +161,7 @@ This importer is designed for MyoAdapt's Excel format, but it might work with si
 - Rest time
 - Warmup time
 
-If your app exports Excel files with these columns, try importing! It might work.
+If your app exports CSV or Excel files with these columns, try importing! It might work.
 
 ---
 
@@ -169,9 +170,10 @@ If your app exports Excel files with these columns, try importing! It might work
 If you're having trouble importing:
 
 1. Check this troubleshooting guide first
-2. Make sure your Excel file is from MyoAdapt
-3. Try with a small export (just a few days) to test
-4. Open a GitHub issue if problems persist
+2. Make sure your CSV or Excel file is from MyoAdapt
+3. Verify it has the required columns (Date, Exercise, Set time)
+4. Try with a small export (just a few days) to test
+5. Open a GitHub issue if problems persist
 
 ---
 

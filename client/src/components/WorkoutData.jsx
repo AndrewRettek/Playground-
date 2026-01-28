@@ -224,7 +224,7 @@ function WorkoutData() {
             Import Workout Data
           </h3>
           <p className="text-blue-800 text-sm mb-4">
-            Import your workout data from MyoAdapt or other fitness apps. Upload an Excel file and we'll automatically parse and add your workouts.
+            Import your workout data from MyoAdapt or other fitness apps. Upload a CSV or Excel file and we'll automatically parse and add your workouts.
           </p>
           <Link
             to="/workouts/import"

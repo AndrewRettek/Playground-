@@ -150,7 +150,7 @@ function WorkoutImport() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Import MyoAdapt Data</h1>
 
         <div className="bg-white rounded-xl shadow-md p-8 mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Upload Excel File</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">Upload CSV or Excel File</h2>
 
           {/* Drag & Drop Zone */}
           <div
@@ -176,7 +176,7 @@ function WorkoutImport() {
             ) : (
               <div>
                 <p className="text-gray-600 mb-2">
-                  Drag and drop your MyoAdapt Excel file here
+                  Drag and drop your MyoAdapt CSV or Excel file here
                 </p>
                 <p className="text-gray-500 text-sm">or</p>
               </div>
@@ -188,7 +188,7 @@ function WorkoutImport() {
               </span>
               <input
                 type="file"
-                accept=".xlsx,.xls"
+                accept=".xlsx,.xls,.csv"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -253,7 +253,7 @@ function WorkoutImport() {
           </h3>
           <ol className="text-blue-800 text-sm space-y-2">
             <li>1. Request workout export from your MyoAdapt app</li>
-            <li>2. Download the Excel file from the email MyoAdapt sends you</li>
+            <li>2. Download the CSV or Excel file from the email MyoAdapt sends you</li>
             <li>3. Upload the file here using drag & drop or the file selector</li>
             <li>4. Click "Import Workouts" and wait for processing</li>
             <li>5. Your workouts will be automatically added to your log!</li>
