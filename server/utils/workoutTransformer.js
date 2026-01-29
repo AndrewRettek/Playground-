@@ -164,3 +164,146 @@ export function transformToWorkouts(rows, userId) {
 
   return workouts;
 }
+
+/**
+ * Calculates estimated 1RM using Brzycki formula
+ * @param {number} weight - Weight lifted
+ * @param {number} reps - Reps performed
+ * @returns {number} Estimated 1RM
+ */
+function calculateEstimated1RM(weight, reps) {
+  if (!weight || !reps || reps <= 0) return 0;
+  if (reps === 1) return weight;
+
+  // Brzycki formula: weight × (36 / (37 – reps))
+  return Math.round(weight * (36 / (37 - reps)));
+}
+
+/**
+ * Groups workout rows by date and exercise
+ * @param {Array} rows - Array of workout rows
+ * @returns {Object} Nested object { date: { exercise: [rows] } }
+ */
+function groupByDateAndExercise(rows) {
+  const grouped = {};
+
+  for (const row of rows) {
+    const dateStr = row.date;
+    const exercise = row.exercise;
+
+    if (!dateStr || !exercise) continue;
+
+    if (!grouped[dateStr]) {
+      grouped[dateStr] = {};
+    }
+
+    if (!grouped[dateStr][exercise]) {
+      grouped[dateStr][exercise] = [];
+    }
+
+    grouped[dateStr][exercise].push(row);
+  }
+
+  return grouped;
+}
+
+/**
+ * Transforms MyoAdapt rows into individual exercise records for detailed tracking
+ * @param {Array} rows - Parsed Excel/CSV rows
+ * @param {string} userId - Firebase user ID
+ * @returns {Array} Array of exercise objects ready for Firestore
+ */
+export function transformToExercises(rows, userId) {
+  if (!rows || rows.length === 0) {
+    return [];
+  }
+
+  if (!userId) {
+    throw new Error('userId is required');
+  }
+
+  // Group rows by date and exercise
+  const groupedByDateAndExercise = groupByDateAndExercise(rows);
+
+  // Transform each date+exercise group into an exercise object
+  const exercises = [];
+
+  for (const [dateStr, exerciseGroups] of Object.entries(groupedByDateAndExercise)) {
+    for (const [exerciseName, exerciseRows] of Object.entries(exerciseGroups)) {
+      try {
+        // Parse the date
+        const exerciseDate = parseDateString(dateStr);
+
+        // Build sets array
+        const sets = [];
+        let totalVolume = 0;
+        let totalDuration = 0;
+        let heaviestSet = { weight: 0, reps: 0 };
+
+        for (let i = 0; i < exerciseRows.length; i++) {
+          const row = exerciseRows[i];
+
+          const weight = parseFloat(row.weight) || 0;
+          const reps = parseInt(row.reps, 10) || 0;
+          const rir = parseInt(row.rir, 10) || null;
+          const setTime = parseTimeToSeconds(row.setTime);
+          const restTime = parseTimeToSeconds(row.restTime);
+
+          // Track heaviest set for 1RM calculation
+          if (weight > heaviestSet.weight || (weight === heaviestSet.weight && reps > heaviestSet.reps)) {
+            heaviestSet = { weight, reps };
+          }
+
+          sets.push({
+            setNumber: i + 1,
+            reps,
+            weight,
+            rir,
+            setTime,
+            restTime
+          });
+
+          // Calculate volume (weight × reps)
+          totalVolume += weight * reps;
+
+          // Calculate total duration
+          totalDuration += setTime + restTime;
+        }
+
+        // Calculate estimated 1RM from heaviest set
+        const estimated1RM = calculateEstimated1RM(heaviestSet.weight, heaviestSet.reps);
+
+        // Get target muscle (should be same for all rows of this exercise)
+        const targetMuscle = exerciseRows[0].targetMuscle || 'General';
+
+        // Create exercise object
+        const exercise = {
+          userId,
+          date: dateStr,
+          exercise: exerciseName,
+          targetMuscle,
+          sets,
+          totalVolume,
+          totalDuration,
+          estimated1RM,
+          timestamp: exerciseDate
+        };
+
+        exercises.push(exercise);
+
+      } catch (error) {
+        console.error(`Error processing exercise ${exerciseName} for date ${dateStr}:`, error);
+        // Skip this exercise and continue with others
+      }
+    }
+  }
+
+  // Sort by date (oldest first), then by exercise name
+  exercises.sort((a, b) => {
+    const dateDiff = a.timestamp - b.timestamp;
+    if (dateDiff !== 0) return dateDiff;
+    return a.exercise.localeCompare(b.exercise);
+  });
+
+  return exercises;
+}

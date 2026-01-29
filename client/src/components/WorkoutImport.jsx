@@ -97,7 +97,7 @@ function WorkoutImport() {
         throw new Error(response.data.error || 'Import failed')
       }
 
-      const { workouts } = response.data
+      const { workouts, exercises } = response.data
 
       // Check for duplicates
       const duplicateDates = await checkForDuplicates(workouts)
@@ -118,9 +118,25 @@ function WorkoutImport() {
         importedCount++
       }
 
+      // Save exercises to Firestore (filter by same dates to avoid duplicates)
+      let exercisesImported = 0
+      if (exercises && exercises.length > 0) {
+        for (const exercise of exercises) {
+          const dateStr = new Date(exercise.timestamp).toLocaleDateString()
+          if (!duplicateDates.includes(dateStr)) {
+            await addDoc(collection(db, 'exercises'), {
+              ...exercise,
+              timestamp: new Date(exercise.timestamp)
+            })
+            exercisesImported++
+          }
+        }
+      }
+
       setResult({
         total: workouts.length,
         imported: importedCount,
+        exercisesImported: exercisesImported,
         skipped: duplicateDates.length,
         duplicateDates
       })

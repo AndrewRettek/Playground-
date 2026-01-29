@@ -4,6 +4,8 @@ import dotenv from 'dotenv'
 import axios from 'axios'
 import multer from 'multer'
 import { importWorkoutsFromExcel } from './controllers/workoutImportController.js'
+import { syncOuraDataRange } from './utils/ouraSyncService.js'
+import { getAuthUrl, exchangeCodeForTokens, fetchWeightData, fetchActivityData } from './utils/googleFitService.js'
 
 dotenv.config()
 
@@ -125,6 +127,133 @@ app.get('/api/oura/readiness', async (req, res) => {
     res.status(error.response?.status || 500).json({
       error: 'Failed to fetch readiness data',
       details: error.response?.data || error.message
+    })
+  }
+})
+
+// Oura sync endpoint - sync multiple dates at once
+app.post('/api/oura/sync', async (req, res) => {
+  try {
+    const { token, startDate, endDate } = req.body
+
+    if (!token) {
+      return res.status(400).json({ error: 'Token required' })
+    }
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'Start date and end date required' })
+    }
+
+    const ouraData = await syncOuraDataRange(token, startDate, endDate)
+
+    res.json({
+      success: true,
+      data: ouraData,
+      count: ouraData.length
+    })
+  } catch (error) {
+    console.error('Oura sync error:', error.message)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to sync Oura data',
+      details: error.message
+    })
+  }
+})
+
+// Google Fit OAuth - get authorization URL
+app.get('/api/googlefit/auth', (req, res) => {
+  try {
+    const authUrl = getAuthUrl()
+    res.json({ authUrl })
+  } catch (error) {
+    console.error('Google Fit auth URL error:', error)
+    res.status(500).json({ error: 'Failed to generate auth URL' })
+  }
+})
+
+// Google Fit OAuth - handle callback and exchange code for tokens
+app.get('/api/googlefit/callback', async (req, res) => {
+  try {
+    const { code } = req.query
+
+    if (!code) {
+      return res.status(400).json({ error: 'Authorization code required' })
+    }
+
+    const tokens = await exchangeCodeForTokens(code)
+
+    // Return tokens to client (client will store encrypted in Firestore)
+    res.json({
+      success: true,
+      tokens: tokens
+    })
+  } catch (error) {
+    console.error('Google Fit token exchange error:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to exchange authorization code',
+      details: error.message
+    })
+  }
+})
+
+// Google Fit - sync weight data
+app.post('/api/googlefit/sync-weight', async (req, res) => {
+  try {
+    const { accessToken, startDate, endDate } = req.body
+
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Access token required' })
+    }
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'Start date and end date required' })
+    }
+
+    const weightData = await fetchWeightData(accessToken, startDate, endDate)
+
+    res.json({
+      success: true,
+      data: weightData,
+      count: weightData.length
+    })
+  } catch (error) {
+    console.error('Google Fit weight sync error:', error.message)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to sync weight data',
+      details: error.message
+    })
+  }
+})
+
+// Google Fit - sync activity data
+app.post('/api/googlefit/sync-activity', async (req, res) => {
+  try {
+    const { accessToken, startDate, endDate } = req.body
+
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Access token required' })
+    }
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'Start date and end date required' })
+    }
+
+    const activityData = await fetchActivityData(accessToken, startDate, endDate)
+
+    res.json({
+      success: true,
+      data: activityData,
+      count: activityData.length
+    })
+  } catch (error) {
+    console.error('Google Fit activity sync error:', error.message)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to sync activity data',
+      details: error.message
     })
   }
 })

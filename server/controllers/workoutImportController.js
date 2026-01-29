@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { parseMyoAdaptExcel, isValidExcelFile } from '../utils/excelParser.js';
-import { transformToWorkouts } from '../utils/workoutTransformer.js';
+import { transformToWorkouts, transformToExercises } from '../utils/workoutTransformer.js';
 
 /**
  * Handles MyoAdapt Excel file import
@@ -61,24 +61,28 @@ export async function importWorkoutsFromExcel(req, res) {
 
     console.log(`Parsed ${rows.length} rows from Excel`);
 
-    // Transform rows into workout objects
+    // Transform rows into workout objects (daily summaries)
     const workouts = transformToWorkouts(rows, userId);
 
-    if (workouts.length === 0) {
+    // Transform rows into individual exercise records (detailed tracking)
+    const exercises = transformToExercises(rows, userId);
+
+    if (workouts.length === 0 && exercises.length === 0) {
       return res.status(400).json({
         success: false,
         error: 'No valid workouts could be extracted from the file'
       });
     }
 
-    console.log(`Transformed into ${workouts.length} workout(s)`);
+    console.log(`Transformed into ${workouts.length} workout(s) and ${exercises.length} exercise(s)`);
 
-    // Return the transformed workouts to the client
+    // Return both workouts and exercises to the client
     // The client will handle writing to Firestore
     res.json({
       success: true,
-      message: `Successfully processed ${workouts.length} workout(s)`,
+      message: `Successfully processed ${workouts.length} workout(s) and ${exercises.length} exercise(s)`,
       workouts: workouts,
+      exercises: exercises,
       importedCount: workouts.length
     });
 
