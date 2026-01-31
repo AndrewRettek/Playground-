@@ -1,0 +1,17 @@
+{
+  "name": "health-data-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Automated health data collection and logging scripts",
+  "scripts": {
+    "daily-sync": "node daily-sync.js",
+    "watch-myoadapt": "node myoadapt-watcher.js",
+    "setup-oura": "node setup-oura.js",
+    "setup-googlefit": "node auth-googlefit.js",
+    "log-note": "node log-health-note.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "date-fns": "^4.1.0"
+  }
+}
