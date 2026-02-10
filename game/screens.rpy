@@ -145,7 +145,7 @@ screen main_menu():
         xalign 0.5
         yalign 0.5
         xsize 500
-        ysize 400
+        ysize 450
         background Solid("#1a3a4f")
         padding (40, 40, 40, 40)
 
@@ -156,7 +156,7 @@ screen main_menu():
             text "FutaDomWorld Chat" size 32 color "#ffffff" xalign 0.5 bold True
             text "v0.1.0" size 16 color "#888888" xalign 0.5
 
-            null height 30
+            null height 20
 
             textbutton "Start" action Start() xalign 0.5:
                 text_size 24
@@ -168,8 +168,76 @@ screen main_menu():
                 text_color "#4fc3f7"
                 text_hover_color "#ffffff"
 
+            textbutton "Subscription Key" action ShowMenu("subscription") xalign 0.5:
+                text_size 24
+                text_color "#4fc3f7"
+                text_hover_color "#ffffff"
+
             textbutton "Quit" action Quit(confirm=True) xalign 0.5:
                 text_size 24
+                text_color "#4fc3f7"
+                text_hover_color "#ffffff"
+
+            ## Login status indicator
+            if is_logged_in():
+                text "Subscription: Active" size 14 color "#66cc66" xalign 0.5
+            else:
+                text "Subscription: Not set" size 14 color "#ff6666" xalign 0.5
+
+
+## ===================================================================
+## SUBSCRIPTION KEY SCREEN
+## ===================================================================
+
+screen subscription():
+    tag menu
+
+    add Solid("#0d2f44")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 500
+        ysize 350
+        background Solid("#1a3a4f")
+        padding (40, 30, 40, 30)
+
+        vbox:
+            xalign 0.5
+            spacing 15
+
+            text "Subscription Key" size 28 color "#ffffff" xalign 0.5 bold True
+
+            null height 5
+
+            text "Enter your subscription key to enable chatting." size 14 color "#aaaaaa" xalign 0.5 text_align 0.5
+
+            null height 10
+
+            if is_logged_in():
+                text "Current key: [persistent.player_token[:8]]..." size 14 color "#66cc66" xalign 0.5
+
+            null height 5
+
+            textbutton "Enter Key" action Function(prompt_subscription_key) xalign 0.5:
+                text_size 20
+                text_color "#ffffff"
+                background Solid("#4a90d9")
+                hover_background Solid("#66aaff")
+                xsize 200
+                text_xalign 0.5
+                ysize 40
+
+            if is_logged_in():
+                textbutton "Clear Key" action Function(clear_subscription_key) xalign 0.5:
+                    text_size 16
+                    text_color "#ff6666"
+                    text_hover_color "#ff8888"
+
+            null height 10
+
+            textbutton "Back" action Return() xalign 0.5:
+                text_size 18
                 text_color "#4fc3f7"
                 text_hover_color "#ffffff"
 

@@ -1,32 +1,58 @@
-## chat_api.rpy - DeepInfra API integration for chatbot responses
+## chat_api.rpy - Proxy server integration for chatbot responses
 
 init python:
     import json
 
     ## ---------------------------------------------------------------
-    ## CONFIGURATION - Set your API key and model here
+    ## CONFIGURATION
     ## ---------------------------------------------------------------
 
-    ## Your DeepInfra API key. For production, load from environment
-    ## or a config file rather than hardcoding.
-    DEEPINFRA_API_KEY = "YOUR_DEEPINFRA_API_KEY"
-
-    ## DeepSeek V3.2 model identifier on DeepInfra
-    DEEPINFRA_MODEL = "deepseek-ai/DeepSeek-V3-0324"
-
-    ## API endpoint
-    DEEPINFRA_URL = "https://api.deepinfra.com/v1/openai/chat/completions"
+    ## URL of your proxy server
+    PROXY_SERVER_URL = "http://localhost:8080"
 
     ## Default system prompt - replace with your character prompts
     DEFAULT_SYSTEM_PROMPT = """You are Mallory, a friendly and witty character. You are texting with the player through a messaging app. Keep your responses conversational, casual, and in-character. Use texting abbreviations naturally but don't overdo it. Keep responses to 1-3 short paragraphs."""
 
     ## ---------------------------------------------------------------
+    ## PLAYER AUTH
+    ## ---------------------------------------------------------------
+
+    ## Stored subscription token (persists across sessions via persistent)
+    if persistent.player_token is None:
+        persistent.player_token = ""
+
+    def set_player_token(token):
+        """Save the player's subscription token."""
+        persistent.player_token = token.strip()
+
+    def get_player_token():
+        """Get the stored subscription token."""
+        return persistent.player_token or ""
+
+    def is_logged_in():
+        """Check if player has entered a subscription token."""
+        return bool(persistent.player_token)
+
+    def prompt_subscription_key():
+        """Prompt the player to enter their subscription key."""
+        key = renpy.input("Enter your subscription key:", length=128, exclude="{}")
+        key = key.strip()
+        if key:
+            set_player_token(key)
+            renpy.notify("Subscription key saved!")
+
+    def clear_subscription_key():
+        """Clear the stored subscription key."""
+        persistent.player_token = ""
+        renpy.notify("Subscription key cleared.")
+
+    ## ---------------------------------------------------------------
     ## API CALL FUNCTION
     ## ---------------------------------------------------------------
 
-    def call_deepinfra(player_message, conversation_history, system_prompt=None):
+    def call_chat_api(player_message, conversation_history, system_prompt=None):
         """
-        Call the DeepInfra API with the player's message and return the AI response.
+        Call the proxy server with the player's message.
 
         Args:
             player_message: The text the player just typed
@@ -39,30 +65,43 @@ init python:
         if system_prompt is None:
             system_prompt = DEFAULT_SYSTEM_PROMPT
 
-        ## Build the messages array for the API
+        token = get_player_token()
+        if not token:
+            return "(No subscription token set. Please log in from the main menu.)"
+
+        ## Build the messages array
         messages = [{"role": "system", "content": system_prompt}]
         messages.extend(conversation_history)
         messages.append({"role": "user", "content": player_message})
 
         payload = {
-            "model": DEEPINFRA_MODEL,
             "messages": messages,
-            "max_tokens": 300,
             "temperature": 0.85,
-            "top_p": 0.9,
+            "max_tokens": 300,
         }
 
         try:
             response = renpy.fetch(
-                DEEPINFRA_URL,
+                PROXY_SERVER_URL + "/v1/chat",
                 json=payload,
-                headers={"Authorization": "Bearer " + DEEPINFRA_API_KEY},
+                headers={"Authorization": "Bearer " + token},
                 timeout=30,
                 result="json"
             )
-            return response["choices"][0]["message"]["content"]
+
+            if "error" in response:
+                error_msg = response["error"]
+                if "subscription" in error_msg.lower() or "expired" in error_msg.lower():
+                    return "(Your subscription has expired. Please renew to continue chatting.)"
+                elif "rate limit" in error_msg.lower():
+                    return "(Slow down! Please wait a moment before sending another message.)"
+                else:
+                    return "(" + error_msg + ")"
+
+            return response.get("content", "(Empty response from server)")
+
         except Exception as e:
-            return "(Message failed to send. Check your connection and try again.)"
+            return "(Could not reach the server. Check your internet connection.)"
 
     ## ---------------------------------------------------------------
     ## CHAT STATE MANAGEMENT
@@ -95,7 +134,7 @@ init python:
 
             ## Get AI response
             self.is_loading = True
-            ai_response = call_deepinfra(
+            ai_response = call_chat_api(
                 player_text.strip(),
                 list(self.api_history),
                 self.system_prompt
