@@ -1,16 +1,13 @@
 ## script.rpy - Main game script
 
 ## ===================================================================
-## CHARACTER AND SESSION INITIALIZATION
+## CHARACTER LIST - Add new characters here after defining them
+## in characters.rpy
 ## ===================================================================
 
-default mallory_chat = ChatSession(
-    "Mallory",
-    system_prompt=DEFAULT_SYSTEM_PROMPT,
-    avatar="images/characters/placeholder_avatar.png"
-)
-
 default all_chats = [mallory_chat]
+## When you add more characters in characters.rpy, add them here:
+## default all_chats = [mallory_chat, char2_chat, char3_chat]
 
 ## Track which screen we're on
 default phone_state = "messages"

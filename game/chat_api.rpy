@@ -10,8 +10,8 @@ init python:
     ## URL of your proxy server
     PROXY_SERVER_URL = "http://localhost:8080"
 
-    ## Default system prompt - replace with your character prompts
-    DEFAULT_SYSTEM_PROMPT = """You are Mallory, a friendly and witty character. You are texting with the player through a messaging app. Keep your responses conversational, casual, and in-character. Use texting abbreviations naturally but don't overdo it. Keep responses to 1-3 short paragraphs."""
+    ## Fallback system prompt (character-specific prompts are in characters.rpy)
+    DEFAULT_SYSTEM_PROMPT = """You are a character in a chat app. Keep your responses conversational and casual. Keep responses to 1-3 short paragraphs."""
 
     ## ---------------------------------------------------------------
     ## PLAYER AUTH

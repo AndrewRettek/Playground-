@@ -2,85 +2,104 @@
 
 ## Project Overview
 
-FutaDomWorld Chat - A Ren'Py-based phone texting simulator where players chat with AI-powered characters through an in-game phone interface. Spinoff of FutaDomWorld, targeting Steam distribution with adult content rating.
+FutaDomWorld Chat - A Ren'Py phone texting simulator where players chat with AI characters via DeepInfra (DeepSeek V3.2). Spinoff of FutaDomWorld, targeting Steam with adult content rating. Subscription-based access through a proxy server.
 
 ### Technology Stack
 
-- **Engine**: Ren'Py (Python-based visual novel engine)
+- **Engine**: Ren'Py 8.x (Python-based visual novel engine)
 - **Language**: Ren'Py script (.rpy) + Python
-- **AI Backend**: DeepInfra API (DeepSeek V3.2) for chatbot responses
+- **AI Backend**: DeepInfra API (DeepSeek V3.2) via proxy server
+- **Proxy Server**: Flask (Python)
 - **Target Platform**: Steam (Windows, Mac, Linux)
 
 ## Project Structure
 
 ```
 /
-├── CLAUDE.MD              # This file
-├── game/                  # Ren'Py game directory (all game logic and assets)
-│   ├── options.rpy        # Game config, build settings, Steam distribution
-│   ├── gui.rpy            # GUI visual configuration (colors, fonts, sizes)
-│   ├── screens.rpy        # Core Ren'Py screens (menus, save/load, input, confirm)
-│   ├── phone_screens.rpy  # Phone UI screens (phone frame, chat, messages, contacts, Bindr)
-│   ├── chat_api.rpy       # DeepInfra API integration, ChatMessage/ChatSession classes
-│   ├── script.rpy         # Main game script and phone navigation loop
-│   ├── gui/
-│   │   └── phone/         # Phone UI image assets (frames, backgrounds)
+├── CLAUDE.MD
+├── .gitignore
+├── game/                       # Ren'Py game directory
+│   ├── characters.rpy          # <<< CHARACTER PROMPTS & DEFINITIONS GO HERE
+│   ├── chat_api.rpy            # Proxy server integration, ChatSession class
+│   ├── script.rpy              # Game entry point, phone navigation, chat loop
+│   ├── phone_screens.rpy       # Phone UI (messages list, chat view, contacts)
+│   ├── screens.rpy             # Menus, save/load, subscription key screen
+│   ├── options.rpy             # Steam build config, window settings
+│   ├── gui.rpy                 # Colors, fonts, sizing
 │   └── images/
-│       └── characters/    # Character avatars and sprites
+│       └── characters/         # <<< CHARACTER ART GOES HERE
 │           └── placeholder_avatar.png
-└── README.txt             # Distributed with the game
+└── server/                     # Proxy server (deploy separately)
+    ├── app.py                  # Flask proxy (auth, rate limit, DeepInfra relay)
+    ├── requirements.txt        # Python dependencies
+    └── .env.example            # Template for server environment variables
 ```
 
-## Key Files and Components
+## Where To Put Things
 
-- `game/chat_api.rpy`: DeepInfra API calls, ChatMessage class, ChatSession class (manages conversation history, API context window)
-- `game/phone_screens.rpy`: All phone UI - phone_frame (outer shell), phone_chat (conversation view), phone_messages_list, phone_contacts, phone_bindr
-- `game/script.rpy`: Game entry point (`label start`), phone navigation state machine, chat input loop
-- `game/screens.rpy`: Standard Ren'Py screens (main_menu, save, load, preferences, input, confirm)
-- `game/options.rpy`: Steam build configuration, window size, game metadata
+### System Prompts
+Edit `game/characters.rpy` - each character has a named prompt variable:
+- `MALLORY_PROMPT` - Mallory's personality
+- `CHARACTER_2_PROMPT` through `CHARACTER_5_PROMPT` - slots for more characters
 
-## Development Setup
+### Character Art
+Drop PNG files into `game/images/characters/`:
+- Name them anything (e.g. `mallory.png`, `vicky.png`)
+- Update the `avatar=` path in the ChatSession definition in `characters.rpy`
+- Recommended size: 128x128 or larger, square aspect ratio
 
-### Prerequisites
+### Adding a New Character
+1. Write their system prompt in `game/characters.rpy`
+2. Drop their avatar PNG in `game/images/characters/`
+3. Uncomment/add a `default xxx_chat = ChatSession(...)` block in `characters.rpy`
+4. Add them to the `all_chats` list in `game/script.rpy`
 
-- Ren'Py SDK 8.x+ (download from https://www.renpy.org/)
-- DeepInfra API key (set in `game/chat_api.rpy` - `DEEPINFRA_API_KEY`)
+### Proxy Server URL
+Edit `game/chat_api.rpy` line 11: `PROXY_SERVER_URL = "http://localhost:8080"`
+Change to your deployed server URL for production.
 
-### Running Locally
+## Running Locally
 
-1. Place this project folder inside your Ren'Py projects directory
-2. Open Ren'Py Launcher, select the project
+### Game
+1. Install Ren'Py SDK 8.x from https://www.renpy.org/
+2. Open Ren'Py Launcher, point it at this project
 3. Click "Launch Project"
 
-### Building for Steam
+### Proxy Server
+```bash
+cd server
+cp .env.example .env       # Edit .env with your real keys
+pip install -r requirements.txt
+python app.py
+```
 
-1. In Ren'Py Launcher: Build > "Windows, Mac, Linux for Markets"
-2. Upload via SteamPipe to Steamworks
+## Server Deployment
 
-## Configuration
+The proxy server keeps the DeepInfra API key server-side. Deploy to any Python hosting (Railway, Fly.io, Render, VPS, etc).
 
-### Environment Variables / Config
+Required environment variables (set on your hosting provider):
+- `DEEPINFRA_API_KEY` - Your DeepInfra API key
+- `TOKEN_SECRET` - Random secret for signing player tokens
+- `ADMIN_KEY` - Secret for the admin token-creation endpoint
+- `DEEPINFRA_MODEL` - Model ID (default: `deepseek-ai/DeepSeek-V3-0324`)
 
-- `DEEPINFRA_API_KEY`: Set in `game/chat_api.rpy` - your DeepInfra API key
-- `DEEPINFRA_MODEL`: Model identifier, currently `deepseek-ai/DeepSeek-V3-0324`
-- `DEFAULT_SYSTEM_PROMPT`: Character personality prompt in `game/chat_api.rpy`
+Create player tokens via: `POST /admin/create_token` with `{"admin_key": "...", "player_id": "...", "duration_days": 30}`
 
-## Architecture Notes
+## Architecture
 
-- The phone UI uses Ren'Py's `call screen` pattern with a state machine in `script.rpy`
-- `phone_frame` is a wrapper screen that draws the phone shell and delegates content to inner screens
-- Chat history is stored in `ChatSession` objects (both display messages and API context)
-- API context is capped at 40 messages (20 exchanges) to manage token usage
-- Player text input uses `renpy.input()` which shows the built-in input screen
-- HTTP calls use `renpy.fetch()` (built-in, non-blocking)
+- Game client authenticates with proxy using player subscription tokens
+- Proxy validates token, rate-limits (20 req/min), forwards to DeepInfra
+- API key never ships in the game build
+- Player tokens stored in Ren'Py `persistent` (survives across game sessions)
+- Phone UI uses `call screen` pattern with state machine in `script.rpy`
+- Chat history capped at 40 messages (20 exchanges) for token management
+- Phone styling constants at top of `phone_screens.rpy`
 
 ## Notes for Claude AI
 
-- All phone UI styling constants are at the top of `phone_screens.rpy` (PHONE_BG, PHONE_BUBBLE_PLAYER, etc.)
-- When adding new characters, create a new ChatSession in `script.rpy` defaults and add to `all_chats`
-- System prompts for characters will be refined separately - placeholder is in `chat_api.rpy`
-- Do NOT commit API keys - the key field in chat_api.rpy should remain as placeholder text
-
----
-
-**Last Updated**: 2026-02-10
+- Do NOT commit API keys or .env files
+- Character prompts and definitions are in `characters.rpy`, NOT `chat_api.rpy`
+- When adding characters, update both `characters.rpy` and the `all_chats` list in `script.rpy`
+- Phone UI colors are `define` constants in `phone_screens.rpy`
+- `renpy.fetch()` is used for HTTP (built-in, non-blocking)
+- `persistent.player_token` stores the subscription key across sessions

@@ -11,6 +11,11 @@ errors.txt
 trace.txt
 traceback.txt
 
+# Server secrets (never commit real .env)
+server/.env
+__pycache__/
+*.pyc
+
 # OS files
 .DS_Store
 Thumbs.db
