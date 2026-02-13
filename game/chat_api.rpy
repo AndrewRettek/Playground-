@@ -8,7 +8,7 @@ init python:
     ## ---------------------------------------------------------------
 
     ## URL of your proxy server
-    PROXY_SERVER_URL = "http://localhost:8080"
+    PROXY_SERVER_URL = "https://attractive-learning-production-e561.up.railway.app"
 
     ## Fallback system prompt (character-specific prompts are in characters.rpy)
     DEFAULT_SYSTEM_PROMPT = """You are a character in a chat app. Keep your responses conversational and casual. Keep responses to 1-3 short paragraphs."""
