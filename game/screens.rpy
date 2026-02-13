@@ -168,7 +168,7 @@ screen main_menu():
                 text_color "#4fc3f7"
                 text_hover_color "#ffffff"
 
-            textbutton "Subscription Key" action ShowMenu("subscription") xalign 0.5:
+            textbutton "Subscription Key" action Start("subscription_flow") xalign 0.5:
                 text_size 24
                 text_color "#4fc3f7"
                 text_hover_color "#ffffff"
@@ -190,7 +190,7 @@ screen main_menu():
 ## ===================================================================
 
 screen subscription():
-    tag menu
+    modal True
 
     add Solid("#0d2f44")
 
@@ -219,7 +219,7 @@ screen subscription():
 
             null height 5
 
-            textbutton "Enter Key" action Function(prompt_subscription_key) xalign 0.5:
+            textbutton "Enter Key" action Return("enter_key") xalign 0.5:
                 text_size 20
                 text_color "#ffffff"
                 background Solid("#4a90d9")
@@ -229,14 +229,14 @@ screen subscription():
                 ysize 40
 
             if is_logged_in():
-                textbutton "Clear Key" action Function(clear_subscription_key) xalign 0.5:
+                textbutton "Clear Key" action Return("clear_key") xalign 0.5:
                     text_size 16
                     text_color "#ff6666"
                     text_hover_color "#ff8888"
 
             null height 10
 
-            textbutton "Back" action Return() xalign 0.5:
+            textbutton "Back" action Return("back") xalign 0.5:
                 text_size 18
                 text_color "#4fc3f7"
                 text_hover_color "#ffffff"

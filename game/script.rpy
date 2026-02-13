@@ -22,6 +22,29 @@ label start:
     return
 
 ## ===================================================================
+## SUBSCRIPTION KEY FLOW (called from main menu)
+## ===================================================================
+
+label subscription_flow:
+    label .loop:
+        call screen subscription
+
+        if _return == "enter_key":
+            $ key = renpy.input("Enter your subscription key:", length=128, exclude="{}")
+            $ key = key.strip()
+            if key:
+                $ set_player_token(key)
+                $ renpy.notify("Subscription key saved!")
+            jump .loop
+
+        elif _return == "clear_key":
+            $ clear_subscription_key()
+            jump .loop
+
+        elif _return == "back":
+            return
+
+## ===================================================================
 ## PHONE MAIN LOOP
 ## ===================================================================
 
