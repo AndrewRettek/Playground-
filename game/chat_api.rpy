@@ -121,30 +121,36 @@ init python:
             self.is_loading = False
 
         def send_message(self, player_text):
-            """Send a player message and get AI response."""
+            """Send a player message and start async AI response."""
             if not player_text.strip():
                 return
 
-            ## Add player message
+            ## Add player message immediately
             self.messages.append(ChatMessage("player", player_text.strip()))
-
-            ## Get AI response
             self.is_loading = True
-            ai_response = call_chat_api(
-                player_text.strip(),
-                list(self.api_history),
-                self.system_prompt
-            )
-            self.is_loading = False
+
+            ## Start API call in background thread so the screen stays visible
+            renpy.invoke_in_thread(self._fetch_response, player_text.strip(), list(self.api_history))
+
+        def _fetch_response(self, player_text, history):
+            """Background thread: call API and update chat when done."""
+            try:
+                ai_response = call_chat_api(player_text, history, self.system_prompt)
+            except Exception:
+                ai_response = "(Could not reach the server. Check your internet connection.)"
 
             ## Update histories
-            self.api_history.append({"role": "user", "content": player_text.strip()})
+            self.api_history.append({"role": "user", "content": player_text})
             self.api_history.append({"role": "assistant", "content": ai_response})
             self.messages.append(ChatMessage(self.character_name, ai_response))
+            self.is_loading = False
 
             ## Keep API history reasonable (last 20 exchanges)
             if len(self.api_history) > 40:
                 self.api_history = self.api_history[-40:]
+
+            ## Tell Ren'Py to refresh the screen
+            renpy.restart_interaction()
 
         def get_circle_avatar(self):
             """Return the path to this character's circular avatar."""

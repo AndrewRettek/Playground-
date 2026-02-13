@@ -86,7 +86,7 @@ screen phone_messages_list(chat_sessions):
         xalign 0.5
         yalign 0.5
         xsize 420
-        ysize 700
+        ysize 640
         background Frame("gui/phone/phone_body.png", 30, 30, 30, 30)
         padding (2, 2, 2, 2)
 
@@ -182,7 +182,7 @@ screen phone_chat(session):
         xalign 0.5
         yalign 0.5
         xsize 420
-        ysize 700
+        ysize 640
         background Frame("gui/phone/phone_body.png", 30, 30, 30, 30)
         padding (2, 2, 2, 2)
 
@@ -323,10 +323,12 @@ screen phone_chat(session):
                         ysize 36
                         background Frame("gui/phone/send_btn.png", 20, 18, 20, 18)
                         hover_background Frame("gui/phone/send_btn_hover.png", 20, 18, 20, 18)
+                        sensitive (not session.is_loading)
                         action Return(("send", msg_input))
                         text "Send" color "#ffffff" size 14 xalign 0.5 yalign 0.5 bold True
 
-            key "input_enter" action Return(("send", msg_input))
+            if not session.is_loading:
+                key "input_enter" action Return(("send", msg_input))
 
             ## Bottom bar
             use phone_bottom_bar
@@ -349,7 +351,7 @@ screen phone_contacts(chat_sessions):
         xalign 0.5
         yalign 0.5
         xsize 420
-        ysize 700
+        ysize 640
         background Frame("gui/phone/phone_body.png", 30, 30, 30, 30)
         padding (2, 2, 2, 2)
 
