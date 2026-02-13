@@ -5,7 +5,7 @@
 ## in characters.rpy
 ## ===================================================================
 
-default all_chats = [mallory_chat]
+default all_chats = [mallory_chat, vicky_chat, suni_chat, shauna_chat, rye_chat]
 ## When you add more characters in characters.rpy, add them here:
 ## default all_chats = [mallory_chat, char2_chat, char3_chat]
 

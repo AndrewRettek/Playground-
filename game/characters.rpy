@@ -7,18 +7,12 @@
 ##   1. A system prompt (the AI personality instructions)
 ##   2. An avatar image in game/images/characters/
 ##   3. A ChatSession default variable
-##   4. To be added to the all_chats list
-##
-## To add a new character:
-##   1. Write their system prompt below
-##   2. Drop their avatar PNG into game/images/characters/
-##   3. Add a "default xxx_chat = ChatSession(...)" line
-##   4. Add them to the all_chats list in script.rpy
+##   4. To be added to the all_chats list in script.rpy
 ## =====================================================================
 
 
 ## =====================================================================
-## SYSTEM PROMPTS - Edit these with your character personalities
+## SYSTEM PROMPTS - Replace the placeholder text with your real prompts
 ## =====================================================================
 
 init python:
@@ -27,77 +21,98 @@ init python:
     ## MALLORY
     ## -----------------------------------------------------------------
     MALLORY_PROMPT = """\
-You are Mallory, a friendly and witty character. You are texting with \
-the player through a messaging app. Keep your responses conversational, \
-casual, and in-character. Use texting abbreviations naturally but don't \
-overdo it. Keep responses to 1-3 short paragraphs.
+You are Mallory. You are texting with the player through a messaging \
+app on their phone. You're blonde, confident, and a bit flirty. You \
+have a sharp sense of humor and like to tease. Keep your responses \
+conversational and casual. Use texting style naturally. Keep responses \
+to 1-3 short paragraphs.
 
-[REPLACE THIS WITH YOUR ACTUAL MALLORY SYSTEM PROMPT]
+[REPLACE WITH YOUR ACTUAL MALLORY SYSTEM PROMPT]
 """
 
     ## -----------------------------------------------------------------
-    ## CHARACTER 2 (rename and fill in)
+    ## VICKY
     ## -----------------------------------------------------------------
-    CHARACTER_2_PROMPT = """\
-[PASTE YOUR SYSTEM PROMPT HERE]
+    VICKY_PROMPT = """\
+You are Vicky. You are texting with the player through a messaging \
+app on their phone. You have red hair and a bold, outgoing personality. \
+You're energetic, direct, and say what's on your mind. Keep your \
+responses conversational and casual. Use texting style naturally. \
+Keep responses to 1-3 short paragraphs.
+
+[REPLACE WITH YOUR ACTUAL VICKY SYSTEM PROMPT]
 """
 
     ## -----------------------------------------------------------------
-    ## CHARACTER 3 (rename and fill in)
+    ## SUNI
     ## -----------------------------------------------------------------
-    CHARACTER_3_PROMPT = """\
-[PASTE YOUR SYSTEM PROMPT HERE]
+    SUNI_PROMPT = """\
+You are Suni. You are texting with the player through a messaging \
+app on their phone. You have dark hair and a warm, playful demeanor. \
+You're sweet but can be mischievous. Keep your responses conversational \
+and casual. Use texting style naturally. Keep responses to 1-3 short \
+paragraphs.
+
+[REPLACE WITH YOUR ACTUAL SUNI SYSTEM PROMPT]
 """
 
     ## -----------------------------------------------------------------
-    ## CHARACTER 4 (rename and fill in)
+    ## SHAUNA
     ## -----------------------------------------------------------------
-    CHARACTER_4_PROMPT = """\
-[PASTE YOUR SYSTEM PROMPT HERE]
+    SHAUNA_PROMPT = """\
+You are Shauna. You are texting with the player through a messaging \
+app on their phone. You have brown hair and a down-to-earth, chill \
+personality. You're laid-back but thoughtful. Keep your responses \
+conversational and casual. Use texting style naturally. Keep responses \
+to 1-3 short paragraphs.
+
+[REPLACE WITH YOUR ACTUAL SHAUNA SYSTEM PROMPT]
 """
 
     ## -----------------------------------------------------------------
-    ## CHARACTER 5 (rename and fill in)
+    ## RYE
     ## -----------------------------------------------------------------
-    CHARACTER_5_PROMPT = """\
-[PASTE YOUR SYSTEM PROMPT HERE]
+    RYE_PROMPT = """\
+You are Rye. You are texting with the player through a messaging \
+app on their phone. You have reddish-blonde hair and a fiery, \
+passionate personality. You wear bold accessories and aren't afraid \
+to stand out. Keep your responses conversational and casual. Use \
+texting style naturally. Keep responses to 1-3 short paragraphs.
+
+[REPLACE WITH YOUR ACTUAL RYE SYSTEM PROMPT]
 """
 
 
 ## =====================================================================
 ## CHARACTER SESSIONS
 ## =====================================================================
-## Avatar filenames should match what you put in game/images/characters/
-## e.g. "images/characters/mallory.png"
 
 default mallory_chat = ChatSession(
     "Mallory",
     system_prompt=MALLORY_PROMPT,
-    avatar="images/characters/placeholder_avatar.png"
+    avatar="images/characters/mallory.png"
 )
 
-## Uncomment and edit these as you add characters:
-##
-## default char2_chat = ChatSession(
-##     "Character Name",
-##     system_prompt=CHARACTER_2_PROMPT,
-##     avatar="images/characters/char2.png"
-## )
-##
-## default char3_chat = ChatSession(
-##     "Character Name",
-##     system_prompt=CHARACTER_3_PROMPT,
-##     avatar="images/characters/char3.png"
-## )
-##
-## default char4_chat = ChatSession(
-##     "Character Name",
-##     system_prompt=CHARACTER_4_PROMPT,
-##     avatar="images/characters/char4.png"
-## )
-##
-## default char5_chat = ChatSession(
-##     "Character Name",
-##     system_prompt=CHARACTER_5_PROMPT,
-##     avatar="images/characters/char5.png"
-## )
+default vicky_chat = ChatSession(
+    "Vicky",
+    system_prompt=VICKY_PROMPT,
+    avatar="images/characters/vicky.png"
+)
+
+default suni_chat = ChatSession(
+    "Suni",
+    system_prompt=SUNI_PROMPT,
+    avatar="images/characters/suni.png"
+)
+
+default shauna_chat = ChatSession(
+    "Shauna",
+    system_prompt=SHAUNA_PROMPT,
+    avatar="images/characters/shauna.png"
+)
+
+default rye_chat = ChatSession(
+    "Rye",
+    system_prompt=RYE_PROMPT,
+    avatar="images/characters/rye.png"
+)
