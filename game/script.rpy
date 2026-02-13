@@ -94,15 +94,8 @@ label chat_loop:
             $ phone_state = "messages"
             return
 
-        elif action == "type" or action == "send":
-            $ player_msg = renpy.input(
-                "Type your message:",
-                length=500,
-                exclude="{}",
-                allow=None
-            )
-            $ player_msg = player_msg.strip()
-
+        elif action == "send":
+            $ player_msg = _return[1].strip() if _return[1] else ""
             if player_msg:
                 $ current_chat.send_message(player_msg)
 

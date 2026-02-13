@@ -169,6 +169,8 @@ screen phone_messages_list(chat_sessions):
 screen phone_chat(session):
     modal True
 
+    default msg_input = ""
+
     ## Background (Midjourney desktop art)
     add "images/ui/desktop_bg.png"
 
@@ -238,7 +240,7 @@ screen phone_chat(session):
             frame:
                 xfill True
                 yfill True
-                background "images/ui/chat_bg.png"
+                background Frame("images/ui/chat_bg.png", 0, 0, 0, 0)
                 padding (0, 0, 0, 0)
 
                 viewport id "chat_viewport":
@@ -304,21 +306,27 @@ screen phone_chat(session):
                     xfill True
                     yalign 0.5
 
-                    button:
+                    frame:
                         xsize 298
                         ysize 36
                         background Frame("gui/phone/input_field.png", 20, 18, 20, 18)
                         padding (14, 6, 14, 6)
-                        action Return(("type", None))
-                        text "Type a message..." color "#666680" size 13 yalign 0.5
+                        input:
+                            value ScreenVariableInputValue("msg_input")
+                            color "#e0e0e8"
+                            size 13
+                            yalign 0.5
+                            length 500
 
                     button:
                         xsize 68
                         ysize 36
                         background Frame("gui/phone/send_btn.png", 20, 18, 20, 18)
                         hover_background Frame("gui/phone/send_btn_hover.png", 20, 18, 20, 18)
-                        action Return(("send", None))
+                        action Return(("send", msg_input))
                         text "Send" color "#ffffff" size 14 xalign 0.5 yalign 0.5 bold True
+
+            key "input_enter" action Return(("send", msg_input))
 
             ## Bottom bar
             use phone_bottom_bar
