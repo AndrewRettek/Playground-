@@ -115,7 +115,6 @@ def health():
 
 
 @app.route("/v1/chat", methods=["POST"])
-@require_auth
 def chat():
     """
     Main chat endpoint. Accepts messages from the game client,

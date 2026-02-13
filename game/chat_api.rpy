@@ -65,10 +65,6 @@ init python:
         if system_prompt is None:
             system_prompt = DEFAULT_SYSTEM_PROMPT
 
-        token = get_player_token()
-        if not token:
-            return "(No subscription token set. Please log in from the main menu.)"
-
         ## Build the messages array
         messages = [{"role": "system", "content": system_prompt}]
         messages.extend(conversation_history)
@@ -84,7 +80,7 @@ init python:
             response = renpy.fetch(
                 PROXY_SERVER_URL + "/v1/chat",
                 json=payload,
-                headers={"Authorization": "Bearer " + token},
+                headers={"Content-Type": "application/json"},
                 timeout=30,
                 result="json"
             )

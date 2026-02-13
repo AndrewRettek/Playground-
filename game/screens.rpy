@@ -174,21 +174,10 @@ screen main_menu():
                 text_color "#4fc3f7"
                 text_hover_color "#ffffff"
 
-            textbutton "Subscription Key" action Start("subscription_flow") xalign 0.5:
-                text_size 24
-                text_color "#4fc3f7"
-                text_hover_color "#ffffff"
-
             textbutton "Quit" action Quit(confirm=True) xalign 0.5:
                 text_size 24
                 text_color "#4fc3f7"
                 text_hover_color "#ffffff"
-
-            ## Login status indicator
-            if is_logged_in():
-                text "Subscription: Active" size 14 color "#66cc66" xalign 0.5
-            else:
-                text "Subscription: Not set" size 14 color "#ff6666" xalign 0.5
 
 
 ## ===================================================================
