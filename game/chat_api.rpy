@@ -150,6 +150,10 @@ init python:
             if len(self.api_history) > 40:
                 self.api_history = self.api_history[-40:]
 
+        def get_circle_avatar(self):
+            """Return the path to this character's circular avatar."""
+            return "gui/phone/avatar_" + self.character_name.lower() + "_circle.png"
+
         def get_last_message_preview(self):
             """Get a short preview of the last message for the contacts list."""
             if self.messages:
