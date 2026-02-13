@@ -139,22 +139,28 @@ screen main_menu():
     tag menu
     style_prefix "main_menu"
 
-    add Solid("#0d2f44")
+    ## Midjourney gothic cityscape background
+    add "images/ui/menu_bg.png"
+
+    ## Dark overlay for readability
+    add Solid("#00000088")
 
     frame:
         xalign 0.5
         yalign 0.5
         xsize 500
-        ysize 450
-        background Solid("#1a3a4f")
-        padding (40, 40, 40, 40)
+        ysize 500
+        background Solid("#1a1a2ecc")
+        padding (40, 30, 40, 30)
 
         vbox:
             xalign 0.5
-            spacing 20
+            spacing 18
 
-            text "FutaDomWorld Chat" size 32 color "#ffffff" xalign 0.5 bold True
-            text "v0.1.0" size 16 color "#888888" xalign 0.5
+            ## Midjourney logo
+            add "images/ui/logo.png" xalign 0.5
+
+            text "v0.1.0" size 14 color "#888888" xalign 0.5
 
             null height 20
 

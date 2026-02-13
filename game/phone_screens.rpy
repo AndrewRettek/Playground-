@@ -75,8 +75,8 @@ screen phone_bottom_bar():
 screen phone_messages_list(chat_sessions):
     modal True
 
-    ## Background
-    add "gui/phone/phone_bg.png"
+    ## Background (Midjourney desktop art)
+    add "images/ui/desktop_bg.png"
 
     ## Phone shadow
     add "gui/phone/phone_shadow.png" xalign 0.5 yalign 0.5
@@ -103,16 +103,16 @@ screen phone_messages_list(chat_sessions):
             ## Status bar
             use phone_status_bar
 
-            ## Messages header
+            ## Messages header (ornate banner)
             frame:
                 xfill True
                 ysize 44
-                background Solid(PHONE_HEADER_BG)
+                background "images/ui/messages_header.png"
                 padding (10, 5, 10, 5)
                 hbox:
                     xfill True
                     yalign 0.5
-                    text "Messages" color "#ffffff" size 20 xalign 0.5 yalign 0.5 bold True
+                    text "Messages" color "#ffffff" size 20 xalign 0.5 yalign 0.5 bold True outlines [(1, "#00000088", 0, 0)]
 
             ## Thin divider
             add Solid(PHONE_DIVIDER) xfill True ysize 1
@@ -163,8 +163,8 @@ screen phone_messages_list(chat_sessions):
 screen phone_chat(session):
     modal True
 
-    ## Background
-    add "gui/phone/phone_bg.png"
+    ## Background (Midjourney desktop art)
+    add "images/ui/desktop_bg.png"
 
     ## Phone shadow
     add "gui/phone/phone_shadow.png" xalign 0.5 yalign 0.5
@@ -225,57 +225,63 @@ screen phone_chat(session):
             ## Thin divider
             add Solid(PHONE_DIVIDER) xfill True ysize 1
 
-            ## Message area
-            viewport id "chat_viewport":
+            ## Message area (with dark damask texture)
+            frame:
                 xfill True
                 yfill True
-                mousewheel True
-                draggable True
-                yinitial 1.0
+                background "images/ui/chat_bg.png"
+                padding (0, 0, 0, 0)
 
-                vbox:
+                viewport id "chat_viewport":
                     xfill True
-                    spacing 6
+                    yfill True
+                    mousewheel True
+                    draggable True
+                    yinitial 1.0
 
-                    null height 10
+                    vbox:
+                        xfill True
+                        spacing 6
 
-                    for msg in session.messages:
-                        if msg.sender == "player":
-                            ## Player bubble (right-aligned, blue)
-                            hbox:
-                                xfill True
-                                null width 80
-                                frame:
-                                    xalign 1.0
-                                    xmaximum 300
-                                    background Frame("gui/phone/bubble_player.png", 16, 16, 16, 16)
-                                    padding (14, 10, 14, 10)
-                                    text msg.text color PHONE_TEXT_PLAYER size 14
-                        else:
-                            ## NPC bubble (left-aligned, dark, with avatar)
+                        null height 10
+
+                        for msg in session.messages:
+                            if msg.sender == "player":
+                                ## Player bubble (right-aligned, blue)
+                                hbox:
+                                    xfill True
+                                    null width 80
+                                    frame:
+                                        xalign 1.0
+                                        xmaximum 300
+                                        background Frame("gui/phone/bubble_player.png", 16, 16, 16, 16)
+                                        padding (14, 10, 14, 10)
+                                        text msg.text color PHONE_TEXT_PLAYER size 14
+                            else:
+                                ## NPC bubble (left-aligned, dark, with avatar)
+                                hbox:
+                                    spacing 8
+                                    xpos 8
+                                    add session.get_circle_avatar() xsize 28 ysize 28 yalign 0
+                                    frame:
+                                        xmaximum 280
+                                        background Frame("gui/phone/bubble_npc.png", 16, 16, 16, 16)
+                                        padding (14, 10, 14, 10)
+                                        text msg.text color PHONE_TEXT_NPC size 14
+
+                        ## Typing indicator
+                        if session.is_loading:
                             hbox:
                                 spacing 8
                                 xpos 8
                                 add session.get_circle_avatar() xsize 28 ysize 28 yalign 0
                                 frame:
-                                    xmaximum 280
+                                    xmaximum 100
                                     background Frame("gui/phone/bubble_npc.png", 16, 16, 16, 16)
                                     padding (14, 10, 14, 10)
-                                    text msg.text color PHONE_TEXT_NPC size 14
+                                    text "..." color PHONE_TEXT_NPC size 14
 
-                    ## Typing indicator
-                    if session.is_loading:
-                        hbox:
-                            spacing 8
-                            xpos 8
-                            add session.get_circle_avatar() xsize 28 ysize 28 yalign 0
-                            frame:
-                                xmaximum 100
-                                background Frame("gui/phone/bubble_npc.png", 16, 16, 16, 16)
-                                padding (14, 10, 14, 10)
-                                text "..." color PHONE_TEXT_NPC size 14
-
-                    null height 10
+                        null height 10
 
             ## Input area
             frame:
@@ -315,8 +321,8 @@ screen phone_chat(session):
 screen phone_contacts(chat_sessions):
     modal True
 
-    ## Background
-    add "gui/phone/phone_bg.png"
+    ## Background (Midjourney desktop art)
+    add "images/ui/desktop_bg.png"
 
     ## Phone shadow
     add "gui/phone/phone_shadow.png" xalign 0.5 yalign 0.5
