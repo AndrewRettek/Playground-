@@ -115,7 +115,10 @@ screen phone_messages_list(chat_sessions):
                     text "Messages" color "#ffffff" size 20 xalign 0.5 yalign 0.5 bold True outlines [(1, "#00000088", 0, 0)]
 
             ## Thin divider
-            add Solid(PHONE_DIVIDER) xfill True ysize 1
+            frame:
+                xfill True
+                ysize 1
+                background Solid(PHONE_DIVIDER)
 
             ## Contact list (scrollable)
             viewport:
@@ -151,7 +154,10 @@ screen phone_messages_list(chat_sessions):
                                     text session.get_last_message_preview() color PHONE_CARD_PREVIEW size 13
 
                         ## Thin divider between contacts
-                        add Solid(PHONE_DIVIDER) xfill True ysize 1
+                        frame:
+                            xfill True
+                            ysize 1
+                            background Solid(PHONE_DIVIDER)
 
             ## Bottom bar
             use phone_bottom_bar
@@ -223,7 +229,10 @@ screen phone_chat(session):
                         text "Online" color "#43b581" size 11
 
             ## Thin divider
-            add Solid(PHONE_DIVIDER) xfill True ysize 1
+            frame:
+                xfill True
+                ysize 1
+                background Solid(PHONE_DIVIDER)
 
             ## Message area (with dark damask texture)
             frame:
@@ -372,7 +381,10 @@ screen phone_contacts(chat_sessions):
                     text "Contacts" color "#ffffff" size 20 xalign 0.5 yalign 0.5 bold True
 
             ## Thin divider
-            add Solid(PHONE_DIVIDER) xfill True ysize 1
+            frame:
+                xfill True
+                ysize 1
+                background Solid(PHONE_DIVIDER)
 
             ## Contact list (scrollable)
             viewport:
@@ -404,7 +416,10 @@ screen phone_contacts(chat_sessions):
                                 text session.character_name color PHONE_CARD_TEXT size 18 bold True yalign 0.5
 
                         ## Thin divider
-                        add Solid(PHONE_DIVIDER) xfill True ysize 1
+                        frame:
+                            xfill True
+                            ysize 1
+                            background Solid(PHONE_DIVIDER)
 
             ## Bottom bar
             use phone_bottom_bar
