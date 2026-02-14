@@ -313,7 +313,7 @@ screen phone_chat(session):
                 background Frame("images/ui/chat_bg.png", 0, 0, 0, 0)
                 padding (0, 0, 0, 0)
 
-                viewport id ("chat_vp_%d" % len(session.messages)):
+                viewport id ("chat_vp_%d_%s" % (len(session.messages), session.is_loading)):
                     xfill True
                     yfill True
                     mousewheel True
@@ -401,12 +401,13 @@ screen phone_chat(session):
                             value ScreenVariableInputValue("msg_input")
                             color "#e0e0e8"
                             size 15
-                            pixel_width 270
+                            xfill True
                             length 500
 
                     button:
                         xsize 68
                         ysize 36
+                        yalign 1.0
                         background Frame("gui/phone/send_btn.png", 20, 18, 20, 18)
                         hover_background Frame("gui/phone/send_btn_hover.png", 20, 18, 20, 18)
                         sensitive (not session.is_loading)
