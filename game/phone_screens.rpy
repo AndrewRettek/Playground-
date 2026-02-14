@@ -313,7 +313,7 @@ screen phone_chat(session):
                 background Frame("images/ui/chat_bg.png", 0, 0, 0, 0)
                 padding (0, 0, 0, 0)
 
-                viewport id "chat_viewport":
+                viewport id ("chat_vp_%d" % len(session.messages)):
                     xfill True
                     yfill True
                     mousewheel True
@@ -384,25 +384,24 @@ screen phone_chat(session):
             ## Input area
             frame:
                 xfill True
-                ysize 52
+                yminimum 52
                 background Solid(PHONE_INPUT_BG)
                 padding (10, 8, 10, 8)
 
                 hbox:
                     spacing 8
                     xfill True
-                    yalign 0.5
 
                     frame:
                         xsize 298
-                        ysize 36
+                        yminimum 36
                         background Frame("gui/phone/input_field.png", 20, 18, 20, 18)
                         padding (14, 6, 14, 6)
                         input:
                             value ScreenVariableInputValue("msg_input")
                             color "#e0e0e8"
                             size 15
-                            yalign 0.5
+                            pixel_width 270
                             length 500
 
                     button:

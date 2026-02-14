@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Remove backgrounds from character images and save as portrait assets.
+"""Remove backgrounds from Gemini-generated character portraits.
 
-Takes each base character image from game/images/characters/,
-removes the background using rembg, crops to 3:5 aspect ratio,
-resizes to 360x600, and saves to all 4 portrait slots per character.
+Reads 16 source images named "Character N.png" from game/images/characters/,
+removes backgrounds using rembg, crops to 3:5 aspect ratio, resizes to
+360x600, and saves as character_n.png in the portraits directory.
 """
 
 import os
-import shutil
+from io import BytesIO
 from PIL import Image
 from rembg import remove
 
@@ -15,13 +15,32 @@ BASE_DIR = os.path.dirname(__file__)
 SRC_DIR = os.path.join(BASE_DIR, "game", "images", "characters")
 DST_DIR = os.path.join(SRC_DIR, "portraits")
 
-CHARACTERS = ["mallory", "rye", "demitria", "gabby"]
 PORTRAIT_W, PORTRAIT_H = 360, 600
-SLOTS_PER_CHARACTER = 4
+
+# Source filename → output filename mapping
+# Source: "Character N.png", Output: "character_n.png"
+PORTRAITS = [
+    ("Mallory 1.png", "mallory_1.png"),
+    ("Mallory 2.png", "mallory_2.png"),
+    ("Mallory 3.png", "mallory_3.png"),
+    ("Mallory 4.png", "mallory_4.png"),
+    ("Rye 1.png", "rye_1.png"),
+    ("Rye 2.png", "rye_2.png"),
+    ("Rye 3.png", "rye_3.png"),
+    ("Rye 4.png", "rye_4.png"),
+    ("Demetria 1.png", "demitria_1.png"),
+    ("Demetria 2.png", "demitria_2.png"),
+    ("Demetria 3.png", "demitria_3.png"),
+    ("Demetria 4.png", "demitria_4.png"),
+    ("Gabby 1.png", "gabby_1.png"),
+    ("Gabby 2.png", "gabby_2.png"),
+    ("Gabby 3.png", "gabby_3.png"),
+    ("Gabby 4.png", "gabby_4.png"),
+]
 
 
 def crop_to_aspect(img, target_w, target_h):
-    """Crop image to target aspect ratio, centered."""
+    """Crop image to target aspect ratio, centered horizontally, anchored to top."""
     iw, ih = img.size
     target_ratio = target_w / target_h
     img_ratio = iw / ih
@@ -39,14 +58,14 @@ def crop_to_aspect(img, target_w, target_h):
     return img
 
 
-def process_character(name):
-    """Remove background, crop, resize, and save to all 4 portrait slots."""
-    src_path = os.path.join(SRC_DIR, f"{name}.png")
-    if not os.path.exists(src_path):
-        print(f"  SKIP {name} — source not found at {src_path}")
-        return False
+def process_portrait(src_name, dst_name):
+    """Remove background from one portrait, crop, resize, and save."""
+    src_path = os.path.join(SRC_DIR, src_name)
+    dst_path = os.path.join(DST_DIR, dst_name)
 
-    print(f"  Processing {name}...")
+    if not os.path.exists(src_path):
+        print(f"  SKIP {src_name} — not found")
+        return False
 
     # Load and remove background
     with open(src_path, "rb") as f:
@@ -54,38 +73,25 @@ def process_character(name):
     output_data = remove(input_data)
 
     # Open as PIL image
-    from io import BytesIO
     img = Image.open(BytesIO(output_data)).convert("RGBA")
-    print(f"    Source: {img.size[0]}x{img.size[1]}")
 
-    # Crop to 3:5 aspect ratio
+    # Crop to 3:5 aspect ratio, resize to final size
     img = crop_to_aspect(img, PORTRAIT_W, PORTRAIT_H)
-
-    # Resize to final portrait size
     img = img.resize((PORTRAIT_W, PORTRAIT_H), Image.LANCZOS)
-    print(f"    Output: {img.size[0]}x{img.size[1]}")
 
-    # Save to all 4 portrait slots
-    for i in range(1, SLOTS_PER_CHARACTER + 1):
-        dst_path = os.path.join(DST_DIR, f"{name}_{i}.png")
-        img.save(dst_path)
-        print(f"    Saved {name}_{i}.png")
-
+    img.save(dst_path)
+    print(f"  {src_name} → {dst_name} ({img.size[0]}x{img.size[1]})")
     return True
 
 
 def main():
     os.makedirs(DST_DIR, exist_ok=True)
-    print("Removing backgrounds and generating portraits...\n")
+    print("Processing Gemini portraits...\n")
 
-    success = 0
-    for name in CHARACTERS:
-        if process_character(name):
-            success += 1
-        print()
+    success = sum(1 for src, dst in PORTRAITS if process_portrait(src, dst))
 
-    print(f"Done! {success}/{len(CHARACTERS)} characters processed.")
-    print(f"Portraits saved to {DST_DIR}")
+    print(f"\nDone! {success}/{len(PORTRAITS)} portraits processed.")
+    print(f"Output: {DST_DIR}")
 
 
 if __name__ == "__main__":
