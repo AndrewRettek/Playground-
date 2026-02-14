@@ -6,12 +6,16 @@ define config.version = "0.1.0"
 ## Save directory name - must be unique per game
 define config.save_directory = "FutaDomWorldChat-1234567890"
 
-## Window size matching a phone-centric layout
+## Logical resolution (art/layout designed for 1920x1080)
 define config.screen_width = 1920
 define config.screen_height = 1080
 
-## Start fullscreen for crisp 1:1 pixel rendering on 1080p monitors
-default preferences.fullscreen = True
+## Physical window size (2/3 of logical — fits nicely on 1080p monitors)
+define config.physical_width = 1280
+define config.physical_height = 720
+
+## Start windowed (player can press F or Alt+Enter for fullscreen)
+default preferences.fullscreen = False
 
 ## Allow window resizing
 define config.window_icon = None
