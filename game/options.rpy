@@ -11,7 +11,7 @@ define config.screen_width = 1920
 define config.screen_height = 1080
 
 ## Start fullscreen for crisp 1:1 pixel rendering on 1080p monitors
-default preferences.fullscreen = True
+default preferences.fullscreen = False
 
 ## Allow window resizing
 define config.window_icon = None

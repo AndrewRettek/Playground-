@@ -242,3 +242,6 @@ init 1 python:
         system_prompt=GABBY_PROMPT,
         avatar="images/characters/gabby.png"
     )
+
+    ## Master list of all chat sessions (used by phone_messages_list screen)
+    all_chats = [mallory_chat, rye_chat, demitria_chat, gabby_chat]

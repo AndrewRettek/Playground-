@@ -5,9 +5,8 @@
 ## in characters.rpy
 ## ===================================================================
 
-define all_chats = [mallory_chat, rye_chat, demitria_chat, gabby_chat]
-## When you add more characters in characters.rpy, add them here:
-## define all_chats = [mallory_chat, char2_chat, char3_chat]
+## all_chats is defined in characters.rpy (init 1 python block)
+## Add new characters there after defining their ChatSession.
 
 ## Track which screen we're on
 default phone_state = "messages"
