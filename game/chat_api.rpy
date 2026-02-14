@@ -143,6 +143,8 @@ init -1 python:
             self.unread_count = 0
             self._sound_pending = False
             self.is_active = False
+            self._chat_adj = ui.adjustment()
+            self._needs_scroll = True
 
         def send_message(self, player_text):
             """Send a player message and start async AI response."""
@@ -152,6 +154,7 @@ init -1 python:
             ## Add player message immediately with timestamp
             self.messages.append(ChatMessage("player", player_text.strip(), get_timestamp()))
             self.is_loading = True
+            self._needs_scroll = True
 
             ## Start API call in background thread so the screen stays visible
             renpy.invoke_in_thread(self._fetch_response, player_text.strip(), list(self.api_history))
@@ -169,6 +172,7 @@ init -1 python:
             self.messages.append(ChatMessage(self.character_name, ai_response, get_timestamp()))
             self.rotate_portrait()
             self.is_loading = False
+            self._needs_scroll = True
             if not self.is_active:
                 self.unread_count += 1
             self._sound_pending = True

@@ -226,6 +226,10 @@ screen phone_chat(session):
     if session._sound_pending:
         timer 0.01 action [Play("sound", "audio/message_received.wav"), SetField(session, "_sound_pending", False)]
 
+    ## Auto-scroll chat to bottom when new messages arrive
+    if session._needs_scroll:
+        timer 0.01 action [Function(session._chat_adj.change, 99999), SetField(session, "_needs_scroll", False)]
+
     ## Background (Midjourney desktop art)
     add "images/ui/desktop_bg.png"
 
@@ -313,12 +317,11 @@ screen phone_chat(session):
                 background Frame("images/ui/chat_bg.png", 0, 0, 0, 0)
                 padding (0, 0, 0, 0)
 
-                viewport id ("chat_vp_%d_%s" % (len(session.messages), session.is_loading)):
+                viewport id "chat_viewport" yadjustment session._chat_adj:
                     xfill True
                     yfill True
                     mousewheel True
                     draggable True
-                    yinitial 1.0
 
                     vbox:
                         xfill True
