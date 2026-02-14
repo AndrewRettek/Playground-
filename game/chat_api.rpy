@@ -114,7 +114,11 @@ init python:
         """Manages a conversation with a single character."""
         def __init__(self, character_name, system_prompt=None, avatar=None):
             self.character_name = character_name
-            self.system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
+            ## Combine world setting with character-specific prompt
+            if system_prompt:
+                self.system_prompt = WORLD_SETTING_PROMPT + "\n\n" + system_prompt
+            else:
+                self.system_prompt = DEFAULT_SYSTEM_PROMPT
             self.avatar = avatar or "images/characters/placeholder_avatar.png"
             self.messages = []          # List of ChatMessage for display
             self.api_history = []       # List of dicts for API context

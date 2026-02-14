@@ -15,7 +15,20 @@
 ## SYSTEM PROMPTS - Edit these with your character personalities
 ## =====================================================================
 
-init python:
+init -1 python:
+
+    ## -----------------------------------------------------------------
+    ## WORLD SETTING - Shared lore applied to ALL characters
+    ## Edit this to define the world context every character knows.
+    ## -----------------------------------------------------------------
+    WORLD_SETTING_PROMPT = """\
+REPLACE THIS WITH YOUR WORLD SETTING TEXT.
+
+This prompt is automatically prepended to every character's individual prompt.
+Define shared lore here: the Empire, the Goddess, the Temple, organizations,
+biology, social norms, etc. Character-specific details stay in each
+character's own prompt below.
+"""
 
     ## -----------------------------------------------------------------
     ## MALLORY

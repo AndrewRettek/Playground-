@@ -13,6 +13,9 @@ default all_chats = [mallory_chat, rye_chat, demitria_chat, gabby_chat]
 default phone_state = "messages"
 default current_chat = None
 
+## Phone screen transition
+define phone_transition = Dissolve(0.25)
+
 ## ===================================================================
 ## MAIN GAME FLOW
 ## ===================================================================
@@ -54,6 +57,7 @@ label phone_main:
     label .loop:
 
         if phone_state == "messages":
+            $ renpy.transition(phone_transition)
             call screen phone_messages_list(all_chats)
 
             $ action = _return[0]
@@ -64,6 +68,7 @@ label phone_main:
                 $ phone_state = "chat"
 
         elif phone_state == "contacts":
+            $ renpy.transition(phone_transition)
             call screen phone_contacts(all_chats)
 
             $ action = _return[0]
@@ -76,6 +81,7 @@ label phone_main:
                 $ phone_state = "messages"
 
         elif phone_state == "chat":
+            $ renpy.transition(phone_transition)
             call chat_loop
 
         jump .loop

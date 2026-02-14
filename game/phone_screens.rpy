@@ -20,6 +20,43 @@ define PHONE_DIVIDER = "#2d2d4a"
 
 
 ## ===================================================================
+## ATL TRANSFORMS
+## ===================================================================
+
+## Animated typing indicator - three dots with staggered bounce
+transform typing_dot_1:
+    alpha 0.3 yoffset 0
+    block:
+        ease 0.4 alpha 1.0 yoffset -3
+        ease 0.4 alpha 0.3 yoffset 0
+        repeat
+
+transform typing_dot_2:
+    alpha 0.3 yoffset 0
+    pause 0.15
+    block:
+        ease 0.4 alpha 1.0 yoffset -3
+        ease 0.4 alpha 0.3 yoffset 0
+        repeat
+
+transform typing_dot_3:
+    alpha 0.3 yoffset 0
+    pause 0.30
+    block:
+        ease 0.4 alpha 1.0 yoffset -3
+        ease 0.4 alpha 0.3 yoffset 0
+        repeat
+
+## Phone entrance - subtle fade + zoom on first display
+transform phone_entrance:
+    on show:
+        alpha 0.0 zoom 0.95
+        ease 0.35 alpha 1.0 zoom 1.0
+    on replace:
+        alpha 1.0 zoom 1.0
+
+
+## ===================================================================
 ## SHARED SUB-SCREENS
 ## ===================================================================
 
@@ -82,7 +119,7 @@ screen phone_messages_list(chat_sessions):
     add "gui/phone/phone_shadow.png" xalign 0.5 yalign 0.5
 
     ## Phone body
-    frame:
+    frame at phone_entrance:
         xalign 0.5
         yalign 0.5
         xsize 420
@@ -178,7 +215,7 @@ screen phone_chat(session):
     add "gui/phone/phone_shadow.png" xalign 0.5 yalign 0.5
 
     ## Phone body
-    frame:
+    frame at phone_entrance:
         xalign 0.5
         yalign 0.5
         xsize 420
@@ -290,7 +327,12 @@ screen phone_chat(session):
                                     xmaximum 100
                                     background Frame("gui/phone/bubble_npc.png", 16, 16, 16, 16)
                                     padding (14, 10, 14, 10)
-                                    text "..." color PHONE_TEXT_NPC size 14
+                                    hbox:
+                                        spacing 3
+                                        yalign 0.5
+                                        text "." color PHONE_TEXT_NPC size 18 at typing_dot_1
+                                        text "." color PHONE_TEXT_NPC size 18 at typing_dot_2
+                                        text "." color PHONE_TEXT_NPC size 18 at typing_dot_3
 
                         null height 10
 
@@ -347,7 +389,7 @@ screen phone_contacts(chat_sessions):
     add "gui/phone/phone_shadow.png" xalign 0.5 yalign 0.5
 
     ## Phone body
-    frame:
+    frame at phone_entrance:
         xalign 0.5
         yalign 0.5
         xsize 420
