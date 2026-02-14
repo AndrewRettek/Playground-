@@ -1,4 +1,4 @@
-## phone_screens.rpy - Phone UI screens styled to match FutaDomWorld aesthetic (1920x1080)
+## phone_screens.rpy - Phone UI screens styled to match FutaDomWorld aesthetic (1280x720)
 
 ## ===================================================================
 ## COLOR CONSTANTS
@@ -33,7 +33,7 @@ define PHONE_FONT_SEMI = "gui/fonts/Inter-SemiBold.ttf"
 transform typing_dot_1:
     alpha 0.3 yoffset 0
     block:
-        ease 0.4 alpha 1.0 yoffset -4
+        ease 0.4 alpha 1.0 yoffset -3
         ease 0.4 alpha 0.3 yoffset 0
         repeat
 
@@ -41,7 +41,7 @@ transform typing_dot_2:
     alpha 0.3 yoffset 0
     pause 0.15
     block:
-        ease 0.4 alpha 1.0 yoffset -4
+        ease 0.4 alpha 1.0 yoffset -3
         ease 0.4 alpha 0.3 yoffset 0
         repeat
 
@@ -49,7 +49,7 @@ transform typing_dot_3:
     alpha 0.3 yoffset 0
     pause 0.30
     block:
-        ease 0.4 alpha 1.0 yoffset -4
+        ease 0.4 alpha 1.0 yoffset -3
         ease 0.4 alpha 0.3 yoffset 0
         repeat
 
@@ -65,29 +65,29 @@ transform phone_entrance:
 screen phone_status_bar():
     frame:
         xfill True
-        ysize 33
+        ysize 22
         background Solid(PHONE_STATUSBAR_BG)
-        padding (18, 3, 18, 3)
+        padding (12, 2, 12, 2)
         hbox:
             xfill True
             hbox:
-                spacing 9
+                spacing 6
                 yalign 0.5
                 add "gui/phone/icon_signal.png" yalign 0.5
                 add "gui/phone/icon_wifi.png" yalign 0.5
-            text "[get_timestamp()]" size 18 color "#ffffffaa" xalign 0.5 yalign 0.5
+            text "[get_timestamp()]" size 12 color "#ffffffaa" xalign 0.5 yalign 0.5
             hbox:
-                spacing 6
+                spacing 4
                 xalign 1.0
                 yalign 0.5
-                text "100%" size 17 color "#ffffffaa" yalign 0.5
+                text "100%" size 11 color "#ffffffaa" yalign 0.5
                 add "gui/phone/icon_battery.png" yalign 0.5
 
 screen phone_bottom_bar():
     ## Navigation bar
     frame:
         xfill True
-        ysize 66
+        ysize 44
         background Solid(PHONE_NAV_BG)
         padding (0, 0, 0, 0)
         hbox:
@@ -103,7 +103,7 @@ screen phone_bottom_bar():
     ## Bottom bezel with home indicator
     frame:
         xfill True
-        ysize 30
+        ysize 20
         background Solid(PHONE_FRAME_COLOR)
         add "gui/phone/home_indicator.png" xalign 0.5 yalign 0.6
 
@@ -124,10 +124,10 @@ screen phone_messages_list(chat_sessions):
     frame at phone_entrance:
         xalign 0.5
         yalign 0.5
-        xsize 630
-        ysize 810
-        background Frame("gui/phone/phone_body.png", 45, 45, 45, 45)
-        padding (3, 3, 3, 3)
+        xsize 420
+        ysize 540
+        background Frame("gui/phone/phone_body.png", 30, 30, 30, 30)
+        padding (2, 2, 2, 2)
 
         vbox:
             xfill True
@@ -135,7 +135,7 @@ screen phone_messages_list(chat_sessions):
             ## Top bezel with camera dot
             frame:
                 xfill True
-                ysize 39
+                ysize 26
                 background Solid(PHONE_FRAME_COLOR)
                 add "gui/phone/camera_dot.png" xalign 0.5 yalign 0.5
 
@@ -145,13 +145,13 @@ screen phone_messages_list(chat_sessions):
             ## Messages header (ornate banner)
             frame:
                 xfill True
-                ysize 66
+                ysize 44
                 background "images/ui/messages_header.png"
-                padding (15, 8, 15, 8)
+                padding (10, 5, 10, 5)
                 hbox:
                     xfill True
                     yalign 0.5
-                    text "Messages" color "#ffffff" size 33 xalign 0.5 yalign 0.5 bold True outlines [(2, "#00000088", 0, 0)]
+                    text "Messages" color "#ffffff" size 22 xalign 0.5 yalign 0.5 bold True outlines [(1, "#00000088", 0, 0)]
 
             ## Thin divider
             frame:
@@ -172,37 +172,37 @@ screen phone_messages_list(chat_sessions):
                     for session in chat_sessions:
                         button:
                             xfill True
-                            ysize 108
-                            background Frame("gui/phone/contact_card.png", 15, 15, 15, 15)
-                            hover_background Frame("gui/phone/contact_card_hover.png", 15, 15, 15, 15)
+                            ysize 72
+                            background Frame("gui/phone/contact_card.png", 10, 10, 10, 10)
+                            hover_background Frame("gui/phone/contact_card_hover.png", 10, 10, 10, 10)
                             action Return(("open_chat", session))
-                            padding (18, 15, 18, 15)
+                            padding (12, 10, 12, 10)
 
                             hbox:
-                                spacing 18
+                                spacing 12
                                 xfill True
                                 yalign 0.5
 
                                 ## Circular avatar
-                                add session.get_circle_avatar() xsize 72 ysize 72 yalign 0.5
+                                add session.get_circle_avatar() xsize 48 ysize 48 yalign 0.5
 
                                 ## Name and preview
                                 vbox:
-                                    spacing 5
+                                    spacing 3
                                     yalign 0.5
                                     xfill True
-                                    text session.character_name color PHONE_CARD_TEXT size 27 font PHONE_FONT_SEMI
-                                    text session.get_last_message_preview() color PHONE_CARD_PREVIEW size 22
+                                    text session.character_name color PHONE_CARD_TEXT size 18 font PHONE_FONT_SEMI
+                                    text session.get_last_message_preview() color PHONE_CARD_PREVIEW size 14
 
                                 ## Unread badge
                                 if session.unread_count > 0:
                                     frame:
-                                        xsize 36
-                                        ysize 36
+                                        xsize 24
+                                        ysize 24
                                         xalign 1.0
                                         yalign 0.5
                                         background Solid(session.accent_color)
-                                        text str(session.unread_count) color "#ffffff" size 20 font PHONE_FONT_SEMI xalign 0.5 yalign 0.5
+                                        text str(session.unread_count) color "#ffffff" size 13 font PHONE_FONT_SEMI xalign 0.5 yalign 0.5
 
                         ## Thin divider between contacts
                         frame:
@@ -236,10 +236,10 @@ screen phone_chat(session):
     frame at phone_entrance:
         xalign 0.5
         yalign 0.5
-        xsize 630
-        ysize 810
-        background Frame("gui/phone/phone_body.png", 45, 45, 45, 45)
-        padding (3, 3, 3, 3)
+        xsize 420
+        ysize 540
+        background Frame("gui/phone/phone_body.png", 30, 30, 30, 30)
+        padding (2, 2, 2, 2)
 
         vbox:
             xfill True
@@ -247,7 +247,7 @@ screen phone_chat(session):
             ## Top bezel with camera dot
             frame:
                 xfill True
-                ysize 39
+                ysize 26
                 background Solid(PHONE_FRAME_COLOR)
                 add "gui/phone/camera_dot.png" xalign 0.5 yalign 0.5
 
@@ -257,49 +257,49 @@ screen phone_chat(session):
             ## Chat header
             frame:
                 xfill True
-                ysize 72
+                ysize 48
                 background Solid(PHONE_HEADER_BG)
-                padding (12, 9, 18, 9)
+                padding (8, 6, 12, 6)
 
                 ## Left side: back, avatar, name
                 hbox:
-                    spacing 15
+                    spacing 10
                     yalign 0.5
 
                     ## Back button
                     button:
                         yalign 0.5
-                        padding (6, 6, 12, 6)
+                        padding (4, 4, 8, 4)
                         background None
                         action Return(("back", None))
                         hbox:
-                            spacing 6
+                            spacing 4
                             add "gui/phone/icon_nav_back.png" yalign 0.5
-                            text "Back" color session.accent_color size 24 yalign 0.5
+                            text "Back" color session.accent_color size 16 yalign 0.5
 
                     ## Character avatar
-                    add session.get_circle_avatar() xsize 48 ysize 48 yalign 0.5
+                    add session.get_circle_avatar() xsize 32 ysize 32 yalign 0.5
 
                     ## Character name + status
                     vbox:
                         yalign 0.5
-                        text session.character_name color "#ffffff" size 27 font PHONE_FONT_SEMI
-                        text "Online" color session.accent_color size 20
+                        text session.character_name color "#ffffff" size 18 font PHONE_FONT_SEMI
+                        text "Online" color session.accent_color size 13
 
                 ## Reset conversation button (right-aligned)
                 button:
                     xalign 1.0
                     yalign 0.5
-                    padding (12, 8, 12, 8)
+                    padding (8, 5, 8, 5)
                     background Solid("#ff4444aa")
                     hover_background Solid("#ff6666cc")
                     action Return(("reset", None))
-                    text "Clear" color "#ffffff" size 20 bold True
+                    text "Clear" color "#ffffff" size 13 bold True
 
             ## Header accent line (character color)
             frame:
                 xfill True
-                ysize 3
+                ysize 2
                 background Solid(session.accent_color)
 
             ## Message area (with dark damask texture)
@@ -318,9 +318,9 @@ screen phone_chat(session):
 
                     vbox:
                         xfill True
-                        spacing 9
+                        spacing 6
 
-                        null height 15
+                        null height 10
 
                         for msg in session.messages:
                             if msg.sender == "player":
@@ -329,86 +329,86 @@ screen phone_chat(session):
                                     xfill True
                                     hbox:
                                         xfill True
-                                        null width 120
+                                        null width 80
                                         frame:
                                             xalign 1.0
-                                            xmaximum 450
-                                            background Frame("gui/phone/bubble_player.png", 24, 24, 24, 24)
-                                            padding (21, 15, 21, 15)
-                                            text msg.text color PHONE_TEXT_PLAYER size 24
+                                            xmaximum 300
+                                            background Frame("gui/phone/bubble_player.png", 16, 16, 16, 16)
+                                            padding (14, 10, 14, 10)
+                                            text msg.text color PHONE_TEXT_PLAYER size 16
                                     ## Timestamp + read receipt
                                     hbox:
                                         xalign 1.0
-                                        spacing 9
+                                        spacing 6
                                         if msg.read:
-                                            text "Read" color PHONE_READ_COLOR size 17
-                                        text msg.timestamp color PHONE_TIMESTAMP size 17
+                                            text "Read" color PHONE_READ_COLOR size 11
+                                        text msg.timestamp color PHONE_TIMESTAMP size 11
                             else:
                                 ## NPC bubble (left-aligned, dark, with avatar)
                                 vbox:
                                     hbox:
-                                        spacing 12
-                                        xpos 12
-                                        add session.get_circle_avatar() xsize 42 ysize 42 yalign 0
+                                        spacing 8
+                                        xpos 8
+                                        add session.get_circle_avatar() xsize 28 ysize 28 yalign 0
                                         frame:
-                                            xmaximum 420
-                                            background Frame("gui/phone/bubble_npc.png", 24, 24, 24, 24)
-                                            padding (21, 15, 21, 15)
-                                            text msg.text color PHONE_TEXT_NPC size 24
+                                            xmaximum 280
+                                            background Frame("gui/phone/bubble_npc.png", 16, 16, 16, 16)
+                                            padding (14, 10, 14, 10)
+                                            text msg.text color PHONE_TEXT_NPC size 16
                                     ## Timestamp
-                                    text msg.timestamp color PHONE_TIMESTAMP size 17 xpos 66
+                                    text msg.timestamp color PHONE_TIMESTAMP size 11 xpos 44
 
                         ## Typing indicator
                         if session.is_loading:
                             hbox:
-                                spacing 12
-                                xpos 12
-                                add session.get_circle_avatar() xsize 42 ysize 42 yalign 0
+                                spacing 8
+                                xpos 8
+                                add session.get_circle_avatar() xsize 28 ysize 28 yalign 0
                                 frame:
-                                    xmaximum 150
-                                    background Frame("gui/phone/bubble_npc.png", 24, 24, 24, 24)
-                                    padding (21, 15, 21, 15)
+                                    xmaximum 100
+                                    background Frame("gui/phone/bubble_npc.png", 16, 16, 16, 16)
+                                    padding (14, 10, 14, 10)
                                     hbox:
-                                        spacing 5
+                                        spacing 3
                                         yalign 0.5
-                                        text "." color PHONE_TEXT_NPC size 30 at typing_dot_1
-                                        text "." color PHONE_TEXT_NPC size 30 at typing_dot_2
-                                        text "." color PHONE_TEXT_NPC size 30 at typing_dot_3
+                                        text "." color PHONE_TEXT_NPC size 20 at typing_dot_1
+                                        text "." color PHONE_TEXT_NPC size 20 at typing_dot_2
+                                        text "." color PHONE_TEXT_NPC size 20 at typing_dot_3
 
-                        null height 15
+                        null height 10
 
             ## Input area
             frame:
                 xfill True
-                ysize 78
+                ysize 52
                 background Solid(PHONE_INPUT_BG)
-                padding (15, 12, 15, 12)
+                padding (10, 8, 10, 8)
 
                 hbox:
-                    spacing 12
+                    spacing 8
                     xfill True
                     yalign 0.5
 
                     frame:
-                        xsize 447
-                        ysize 54
-                        background Frame("gui/phone/input_field.png", 30, 27, 30, 27)
-                        padding (21, 9, 21, 9)
+                        xsize 298
+                        ysize 36
+                        background Frame("gui/phone/input_field.png", 20, 18, 20, 18)
+                        padding (14, 6, 14, 6)
                         input:
                             value ScreenVariableInputValue("msg_input")
                             color "#e0e0e8"
-                            size 22
+                            size 15
                             yalign 0.5
                             length 500
 
                     button:
-                        xsize 102
-                        ysize 54
-                        background Frame("gui/phone/send_btn.png", 30, 27, 30, 27)
-                        hover_background Frame("gui/phone/send_btn_hover.png", 30, 27, 30, 27)
+                        xsize 68
+                        ysize 36
+                        background Frame("gui/phone/send_btn.png", 20, 18, 20, 18)
+                        hover_background Frame("gui/phone/send_btn_hover.png", 20, 18, 20, 18)
                         sensitive (not session.is_loading)
                         action Return(("send", msg_input))
-                        text "Send" color "#ffffff" size 24 xalign 0.5 yalign 0.5 bold True
+                        text "Send" color "#ffffff" size 16 xalign 0.5 yalign 0.5 bold True
 
             if not session.is_loading:
                 key "input_enter" action Return(("send", msg_input))
@@ -433,10 +433,10 @@ screen phone_contacts(chat_sessions):
     frame at phone_entrance:
         xalign 0.5
         yalign 0.5
-        xsize 630
-        ysize 810
-        background Frame("gui/phone/phone_body.png", 45, 45, 45, 45)
-        padding (3, 3, 3, 3)
+        xsize 420
+        ysize 540
+        background Frame("gui/phone/phone_body.png", 30, 30, 30, 30)
+        padding (2, 2, 2, 2)
 
         vbox:
             xfill True
@@ -444,7 +444,7 @@ screen phone_contacts(chat_sessions):
             ## Top bezel with camera dot
             frame:
                 xfill True
-                ysize 39
+                ysize 26
                 background Solid(PHONE_FRAME_COLOR)
                 add "gui/phone/camera_dot.png" xalign 0.5 yalign 0.5
 
@@ -454,24 +454,24 @@ screen phone_contacts(chat_sessions):
             ## Header with back button
             frame:
                 xfill True
-                ysize 66
+                ysize 44
                 background Solid(PHONE_HEADER_BG)
-                padding (15, 8, 15, 8)
+                padding (10, 5, 10, 5)
                 hbox:
                     xfill True
                     yalign 0.5
 
                     button:
                         yalign 0.5
-                        padding (6, 6, 12, 6)
+                        padding (4, 4, 8, 4)
                         background None
                         action Return(("back", None))
                         hbox:
-                            spacing 6
+                            spacing 4
                             add "gui/phone/icon_nav_back.png" yalign 0.5
-                            text "Back" color PHONE_ACCENT size 24 yalign 0.5
+                            text "Back" color PHONE_ACCENT size 16 yalign 0.5
 
-                    text "Contacts" color "#ffffff" size 33 xalign 0.5 yalign 0.5 bold True
+                    text "Contacts" color "#ffffff" size 22 xalign 0.5 yalign 0.5 bold True
 
             ## Thin divider
             frame:
@@ -492,21 +492,21 @@ screen phone_contacts(chat_sessions):
                     for session in chat_sessions:
                         button:
                             xfill True
-                            ysize 120
-                            background Frame("gui/phone/contact_card.png", 15, 15, 15, 15)
-                            hover_background Frame("gui/phone/contact_card_hover.png", 15, 15, 15, 15)
+                            ysize 80
+                            background Frame("gui/phone/contact_card.png", 10, 10, 10, 10)
+                            hover_background Frame("gui/phone/contact_card_hover.png", 10, 10, 10, 10)
                             action Return(("open_chat", session))
-                            padding (18, 18, 18, 18)
+                            padding (12, 12, 12, 12)
 
                             hbox:
-                                spacing 21
+                                spacing 14
                                 yalign 0.5
 
                                 ## Circular avatar (larger on contacts page)
-                                add session.get_circle_avatar() xsize 84 ysize 84 yalign 0.5
+                                add session.get_circle_avatar() xsize 56 ysize 56 yalign 0.5
 
                                 ## Name
-                                text session.character_name color PHONE_CARD_TEXT size 30 bold True yalign 0.5
+                                text session.character_name color PHONE_CARD_TEXT size 20 bold True yalign 0.5
 
                         ## Thin divider
                         frame:

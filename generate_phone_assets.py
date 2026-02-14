@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate phone UI PNG assets for the Ren'Py game (1920x1080 resolution).
+"""Generate phone UI PNG assets for the Ren'Py game (1280x720 resolution).
 
 Design reference: Nighten's "Yet Another Phone for Ren'Py" (CC0)
 https://github.com/NathanGuilhot/yet-another-phone-for-renpy
@@ -12,10 +12,10 @@ from PIL import Image, ImageDraw, ImageFilter
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "game", "gui", "phone")
 CHAR_DIR = os.path.join(os.path.dirname(__file__), "game", "images", "characters")
 
-# Phone dimensions
-PHONE_W, PHONE_H = 630, 810
-PHONE_RADIUS = 42
-BEZEL = 4  # bezel thickness around screen area
+# Phone dimensions (scaled for 1280x720)
+PHONE_W, PHONE_H = 420, 540
+PHONE_RADIUS = 28
+BEZEL = 3  # bezel thickness around screen area
 
 COLORS = {
     "phone_body": "#1a1a2e",
@@ -103,8 +103,8 @@ def gen_phone_body():
 
     # --- Screen cutout (very dark, inset) ---
     screen_margin = BEZEL * scale + 2 * scale
-    screen_top = 40 * scale  # space for camera/speaker area
-    screen_bottom = 36 * scale  # space for bottom chin
+    screen_top = 27 * scale  # space for camera/speaker area
+    screen_bottom = 24 * scale  # space for bottom chin
     screen_radius = (PHONE_RADIUS - BEZEL - 2) * scale
 
     # Screen bezel shadow (slightly larger, gives inset look)
@@ -127,11 +127,11 @@ def gen_phone_body():
     )
 
     # --- Camera island (top center) ---
-    cam_y = 18 * scale
+    cam_y = 12 * scale
     cam_cx = sw // 2
 
     # Speaker slit
-    slit_w, slit_h = 60 * scale, 4 * scale
+    slit_w, slit_h = 40 * scale, 3 * scale
     draw.rounded_rectangle(
         [
             (cam_cx - slit_w // 2, cam_y - slit_h // 2),
@@ -142,8 +142,8 @@ def gen_phone_body():
     )
 
     # Camera lens (left of center)
-    cam_lens_x = cam_cx - 45 * scale
-    lens_r = 5 * scale
+    cam_lens_x = cam_cx - 30 * scale
+    lens_r = 4 * scale
     # Outer ring
     draw.ellipse(
         [
@@ -174,27 +174,27 @@ def gen_phone_body():
     btn_x = sw - 2 * scale
     # Power button
     draw.rounded_rectangle(
-        [(btn_x, 180 * scale), (btn_x + 3 * scale, 230 * scale)],
+        [(btn_x, 120 * scale), (btn_x + 3 * scale, 153 * scale)],
         radius=scale,
         fill=hex_to_rgba(COLORS["phone_border"]),
     )
     # Volume up
     draw.rounded_rectangle(
-        [(0 - 1 * scale, 160 * scale), (2 * scale, 200 * scale)],
+        [(0 - 1 * scale, 107 * scale), (2 * scale, 133 * scale)],
         radius=scale,
         fill=hex_to_rgba(COLORS["phone_border"]),
     )
     # Volume down
     draw.rounded_rectangle(
-        [(0 - 1 * scale, 215 * scale), (2 * scale, 255 * scale)],
+        [(0 - 1 * scale, 143 * scale), (2 * scale, 170 * scale)],
         radius=scale,
         fill=hex_to_rgba(COLORS["phone_border"]),
     )
 
     # --- Bottom home indicator ---
-    ind_y = sh - 18 * scale
-    ind_w = 90 * scale
-    ind_h = 4 * scale
+    ind_y = sh - 12 * scale
+    ind_w = 60 * scale
+    ind_h = 3 * scale
     draw.rounded_rectangle(
         [(cam_cx - ind_w // 2, ind_y - ind_h // 2),
          (cam_cx + ind_w // 2, ind_y + ind_h // 2)],
@@ -226,7 +226,7 @@ def gen_phone_body():
 
 def gen_phone_shadow():
     """Generate a multi-layer phone shadow for depth."""
-    w, h = PHONE_W + 60, PHONE_H + 60
+    w, h = PHONE_W + 40, PHONE_H + 40
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
@@ -381,8 +381,8 @@ def gen_circular_avatar(name):
         print(f"  Skipping {name} - avatar not found at {avatar_path}")
         return
 
-    size = 192
-    border = 6
+    size = 128
+    border = 4
     inner = size - border * 2
 
     avatar = Image.open(avatar_path).convert("RGBA").resize((inner, inner), Image.LANCZOS)
@@ -495,17 +495,17 @@ def gen_status_icons():
 
 def gen_phone_bg():
     """Generate the desktop background behind the phone."""
-    w, h = 1920, 1080
+    w, h = 1280, 720
     img = Image.new("RGBA", (w, h), hex_to_rgba(COLORS["bg_edge"]))
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
     cx, cy = w // 2, h // 2
     # Subtle radial glow
     draw.ellipse(
-        [(cx - 600, cy - 450), (cx + 600, cy + 450)],
+        [(cx - 400, cy - 300), (cx + 400, cy + 300)],
         fill=(22, 22, 42, 180),
     )
-    overlay = overlay.filter(ImageFilter.GaussianBlur(radius=180))
+    overlay = overlay.filter(ImageFilter.GaussianBlur(radius=120))
     img = Image.alpha_composite(img, overlay)
     img.save(os.path.join(OUTPUT_DIR, "phone_bg.png"))
 
@@ -520,7 +520,7 @@ def gen_misc():
 
     # Home indicator bar
     scale = 2
-    w, h = 120, 6
+    w, h = 80, 4
     img = Image.new("RGBA", (w * scale, h * scale), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     draw.rounded_rectangle(
@@ -534,7 +534,7 @@ def gen_misc():
 
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    print("Generating phone UI assets (1080p, polished)...")
+    print("Generating phone UI assets (720p, polished)...")
 
     # Phone frame
     print("  Phone body (with bezel, camera, speaker, glass)...")

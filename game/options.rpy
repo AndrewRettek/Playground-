@@ -6,13 +6,9 @@ define config.version = "0.1.0"
 ## Save directory name - must be unique per game
 define config.save_directory = "FutaDomWorldChat-1234567890"
 
-## Logical resolution (art/layout designed for 1920x1080)
-define config.screen_width = 1920
-define config.screen_height = 1080
-
-## Physical window size (2/3 of logical — fits nicely on 1080p monitors)
-define config.physical_width = 1280
-define config.physical_height = 720
+## Logical resolution (matches art assets at 1280x720)
+define config.screen_width = 1280
+define config.screen_height = 720
 
 ## Start windowed (player can press F or Alt+Enter for fullscreen)
 default preferences.fullscreen = False
