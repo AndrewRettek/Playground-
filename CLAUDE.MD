@@ -103,3 +103,14 @@ Create player tokens via: `POST /admin/create_token` with `{"admin_key": "...", 
 - Phone UI colors are `define` constants in `phone_screens.rpy`
 - `renpy.fetch()` is used for HTTP (built-in, non-blocking)
 - `persistent.player_token` stores the subscription key across sessions
+
+## Self-Review Checklist
+
+**After every code change, review your work for bugs and problems before committing.** Walk through these checks:
+
+1. **Ren'Py screen layout** — Did you break alignment? Check `yalign`, `xalign`, `ysize` vs `yminimum` interactions. If you remove a centering property from a parent, child elements may drift.
+2. **Ren'Py displayable limitations** — `input` is single-line by default and may not support multi-line wrapping. `pixel_width` causes horizontal scrolling, not wrapping. Test assumptions about how displayables behave.
+3. **Viewport scroll state** — The dynamic viewport ID trick (`"chat_vp_%d_%s" % (len(session.messages), session.is_loading)`) resets scroll on state changes. If you add new state that affects content height, include it in the ID.
+4. **Side effects of changes** — If you change a fixed `ysize` to `yminimum`, check what fills the remaining space (`yfill True` elements will shrink). If you change an hbox's `yalign`, check all children's vertical positioning.
+5. **Asset pipeline** — When processing images, verify output dimensions and transparency. View a sample from each character, not just one.
+6. **File naming** — Source images may have spaces and capitals (`"Mallory 1.png"`). Output files use lowercase + underscores (`mallory_1.png`). The game code references the lowercase versions.
