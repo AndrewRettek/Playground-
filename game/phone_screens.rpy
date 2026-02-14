@@ -333,7 +333,6 @@ screen phone_chat(session):
                                     hbox:
                                         xalign 1.0
                                         spacing 6
-                                        xpadding 8
                                         if msg.read:
                                             text "Read" color PHONE_READ_COLOR size 10
                                         text msg.timestamp color PHONE_TIMESTAMP size 10
