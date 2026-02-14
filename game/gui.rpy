@@ -16,9 +16,9 @@ define gui.text_color = '#ffffff'
 define gui.interface_text_color = '#ffffff'
 
 ## Fonts
-define gui.text_font = gui.preference("font_transform", "DejaVuSans.ttf")
-define gui.name_text_font = gui.preference("font_transform", "DejaVuSans.ttf")
-define gui.interface_text_font = gui.preference("font_transform", "DejaVuSans.ttf")
+define gui.text_font = gui.preference("font_transform", "gui/fonts/Inter-Regular.ttf")
+define gui.name_text_font = gui.preference("font_transform", "gui/fonts/Inter-Bold.ttf")
+define gui.interface_text_font = gui.preference("font_transform", "gui/fonts/Inter-Medium.ttf")
 
 ## Font sizes
 define gui.text_size = 22

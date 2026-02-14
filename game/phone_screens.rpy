@@ -17,6 +17,12 @@ define PHONE_FRAME_COLOR = "#1a1a2e"
 define PHONE_CARD_TEXT = "#ffffff"
 define PHONE_CARD_PREVIEW = "#8b8da0"
 define PHONE_DIVIDER = "#2d2d4a"
+define PHONE_TIMESTAMP = "#ffffff44"
+define PHONE_READ_COLOR = "#4a6cf766"
+
+## Bold font for headers/names
+define PHONE_FONT_BOLD = "gui/fonts/Inter-Bold.ttf"
+define PHONE_FONT_SEMI = "gui/fonts/Inter-SemiBold.ttf"
 
 
 ## ===================================================================
@@ -178,6 +184,7 @@ screen phone_messages_list(chat_sessions):
 
                             hbox:
                                 spacing 12
+                                xfill True
                                 yalign 0.5
 
                                 ## Circular avatar
@@ -187,8 +194,19 @@ screen phone_messages_list(chat_sessions):
                                 vbox:
                                     spacing 3
                                     yalign 0.5
-                                    text session.character_name color PHONE_CARD_TEXT size 16 bold True
+                                    xfill True
+                                    text session.character_name color PHONE_CARD_TEXT size 16 font PHONE_FONT_SEMI
                                     text session.get_last_message_preview() color PHONE_CARD_PREVIEW size 13
+
+                                ## Unread badge
+                                if session.unread_count > 0:
+                                    frame:
+                                        xsize 24
+                                        ysize 24
+                                        xalign 1.0
+                                        yalign 0.5
+                                        background Solid(session.accent_color)
+                                        text str(session.unread_count) color "#ffffff" size 12 font PHONE_FONT_SEMI xalign 0.5 yalign 0.5
 
                         ## Thin divider between contacts
                         frame:
@@ -207,6 +225,10 @@ screen phone_chat(session):
     modal True
 
     default msg_input = ""
+
+    ## Play received sound if pending
+    if session._sound_pending:
+        timer 0.01 action [Play("sound", "audio/message_received.wav"), SetField(session, "_sound_pending", False)]
 
     ## Background (Midjourney desktop art)
     add "images/ui/desktop_bg.png"
@@ -256,7 +278,7 @@ screen phone_chat(session):
                         hbox:
                             spacing 4
                             add "gui/phone/icon_nav_back.png" yalign 0.5
-                            text "Back" color PHONE_ACCENT size 14 yalign 0.5
+                            text "Back" color session.accent_color size 14 yalign 0.5
 
                     ## Character avatar
                     add session.get_circle_avatar() xsize 32 ysize 32 yalign 0.5
@@ -264,14 +286,14 @@ screen phone_chat(session):
                     ## Character name + status
                     vbox:
                         yalign 0.5
-                        text session.character_name color "#ffffff" size 16 bold True
-                        text "Online" color "#43b581" size 11
+                        text session.character_name color "#ffffff" size 16 font PHONE_FONT_SEMI
+                        text "Online" color session.accent_color size 11
 
-            ## Thin divider
+            ## Header accent line (character color)
             frame:
                 xfill True
-                ysize 1
-                background Solid(PHONE_DIVIDER)
+                ysize 2
+                background Solid(session.accent_color)
 
             ## Message area (with dark damask texture)
             frame:
@@ -296,26 +318,39 @@ screen phone_chat(session):
                         for msg in session.messages:
                             if msg.sender == "player":
                                 ## Player bubble (right-aligned, blue)
-                                hbox:
+                                vbox:
                                     xfill True
-                                    null width 80
-                                    frame:
+                                    hbox:
+                                        xfill True
+                                        null width 80
+                                        frame:
+                                            xalign 1.0
+                                            xmaximum 300
+                                            background Frame("gui/phone/bubble_player.png", 16, 16, 16, 16)
+                                            padding (14, 10, 14, 10)
+                                            text msg.text color PHONE_TEXT_PLAYER size 14
+                                    ## Timestamp + read receipt
+                                    hbox:
                                         xalign 1.0
-                                        xmaximum 300
-                                        background Frame("gui/phone/bubble_player.png", 16, 16, 16, 16)
-                                        padding (14, 10, 14, 10)
-                                        text msg.text color PHONE_TEXT_PLAYER size 14
+                                        spacing 6
+                                        xpadding 8
+                                        if msg.read:
+                                            text "Read" color PHONE_READ_COLOR size 10
+                                        text msg.timestamp color PHONE_TIMESTAMP size 10
                             else:
                                 ## NPC bubble (left-aligned, dark, with avatar)
-                                hbox:
-                                    spacing 8
-                                    xpos 8
-                                    add session.get_circle_avatar() xsize 28 ysize 28 yalign 0
-                                    frame:
-                                        xmaximum 280
-                                        background Frame("gui/phone/bubble_npc.png", 16, 16, 16, 16)
-                                        padding (14, 10, 14, 10)
-                                        text msg.text color PHONE_TEXT_NPC size 14
+                                vbox:
+                                    hbox:
+                                        spacing 8
+                                        xpos 8
+                                        add session.get_circle_avatar() xsize 28 ysize 28 yalign 0
+                                        frame:
+                                            xmaximum 280
+                                            background Frame("gui/phone/bubble_npc.png", 16, 16, 16, 16)
+                                            padding (14, 10, 14, 10)
+                                            text msg.text color PHONE_TEXT_NPC size 14
+                                    ## Timestamp
+                                    text msg.timestamp color PHONE_TIMESTAMP size 10 xpos 44
 
                         ## Typing indicator
                         if session.is_loading:

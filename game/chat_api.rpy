@@ -2,6 +2,7 @@
 
 init python:
     import json
+    import time
 
     ## ---------------------------------------------------------------
     ## CONFIGURATION
@@ -103,12 +104,25 @@ init python:
     ## CHAT STATE MANAGEMENT
     ## ---------------------------------------------------------------
 
+    ## Character accent colors (matching avatar border colors)
+    CHARACTER_COLORS = {
+        "Mallory": "#d4af37",   # gold
+        "Rye": "#e74c3c",       # red
+        "Demitria": "#9b59b6",  # purple
+        "Gabby": "#1abc9c",     # teal
+    }
+
+    def get_timestamp():
+        """Return current time as a short string."""
+        return time.strftime("%I:%M %p").lstrip("0")
+
     class ChatMessage(object):
         """Represents a single message in the chat."""
         def __init__(self, sender, text, timestamp=""):
             self.sender = sender    # "player" or character name
             self.text = text
-            self.timestamp = timestamp
+            self.timestamp = timestamp or get_timestamp()
+            self.read = False
 
     class ChatSession(object):
         """Manages a conversation with a single character."""
@@ -120,17 +134,20 @@ init python:
             else:
                 self.system_prompt = DEFAULT_SYSTEM_PROMPT
             self.avatar = avatar or "images/characters/placeholder_avatar.png"
+            self.accent_color = CHARACTER_COLORS.get(character_name, "#4a6cf7")
             self.messages = []          # List of ChatMessage for display
             self.api_history = []       # List of dicts for API context
             self.is_loading = False
+            self.unread_count = 0
+            self._sound_pending = False
 
         def send_message(self, player_text):
             """Send a player message and start async AI response."""
             if not player_text.strip():
                 return
 
-            ## Add player message immediately
-            self.messages.append(ChatMessage("player", player_text.strip()))
+            ## Add player message immediately with timestamp
+            self.messages.append(ChatMessage("player", player_text.strip(), get_timestamp()))
             self.is_loading = True
 
             ## Start API call in background thread so the screen stays visible
@@ -146,8 +163,10 @@ init python:
             ## Update histories
             self.api_history.append({"role": "user", "content": player_text})
             self.api_history.append({"role": "assistant", "content": ai_response})
-            self.messages.append(ChatMessage(self.character_name, ai_response))
+            self.messages.append(ChatMessage(self.character_name, ai_response, get_timestamp()))
             self.is_loading = False
+            self.unread_count += 1
+            self._sound_pending = True
 
             ## Keep API history reasonable (last 20 exchanges)
             if len(self.api_history) > 40:
@@ -155,6 +174,12 @@ init python:
 
             ## Tell Ren'Py to refresh the screen
             renpy.restart_interaction()
+
+        def mark_read(self):
+            """Mark all messages as read and reset unread count."""
+            self.unread_count = 0
+            for msg in self.messages:
+                msg.read = True
 
         def get_circle_avatar(self):
             """Return the path to this character's circular avatar."""

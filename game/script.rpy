@@ -91,6 +91,9 @@ label phone_main:
 ## ===================================================================
 
 label chat_loop:
+    ## Mark messages as read when entering chat
+    $ current_chat.mark_read()
+
     label .loop:
         call screen phone_chat(current_chat)
 
@@ -103,6 +106,7 @@ label chat_loop:
         elif action == "send":
             $ player_msg = _return[1].strip() if _return[1] else ""
             if player_msg:
+                $ renpy.play("audio/message_sent.wav", channel="sound")
                 $ current_chat.send_message(player_msg)
 
     jump .loop
