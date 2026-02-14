@@ -229,6 +229,10 @@ screen phone_chat(session):
     ## Background (Midjourney desktop art)
     add "images/ui/desktop_bg.png"
 
+    ## Character portrait (left side of screen)
+    if session.get_portrait():
+        add session.get_portrait() xpos 20 yalign 1.0
+
     ## Phone shadow
     add "gui/phone/phone_shadow.png" xalign 0.5 yalign 0.5
 

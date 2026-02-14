@@ -126,7 +126,7 @@ init -1 python:
 
     class ChatSession(object):
         """Manages a conversation with a single character."""
-        def __init__(self, character_name, system_prompt=None, avatar=None):
+        def __init__(self, character_name, system_prompt=None, avatar=None, portraits=None):
             self.character_name = character_name
             ## Combine world setting with character-specific prompt
             if system_prompt:
@@ -135,6 +135,8 @@ init -1 python:
                 self.system_prompt = DEFAULT_SYSTEM_PROMPT
             self.avatar = avatar or "images/characters/placeholder_avatar.png"
             self.accent_color = CHARACTER_COLORS.get(character_name, "#4a6cf7")
+            self.portraits = portraits or []
+            self.portrait_index = 0
             self.messages = []          # List of ChatMessage for display
             self.api_history = []       # List of dicts for API context
             self.is_loading = False
@@ -165,6 +167,7 @@ init -1 python:
             self.api_history.append({"role": "user", "content": player_text})
             self.api_history.append({"role": "assistant", "content": ai_response})
             self.messages.append(ChatMessage(self.character_name, ai_response, get_timestamp()))
+            self.rotate_portrait()
             self.is_loading = False
             if not self.is_active:
                 self.unread_count += 1
@@ -194,6 +197,17 @@ init -1 python:
         def get_circle_avatar(self):
             """Return the path to this character's circular avatar."""
             return "gui/phone/avatar_" + self.character_name.lower() + "_circle.png"
+
+        def get_portrait(self):
+            """Return the current portrait image path, or None if no portraits."""
+            if not self.portraits:
+                return None
+            return self.portraits[self.portrait_index % len(self.portraits)]
+
+        def rotate_portrait(self):
+            """Advance to the next portrait image."""
+            if self.portraits:
+                self.portrait_index = (self.portrait_index + 1) % len(self.portraits)
 
         def get_last_message_preview(self):
             """Get a short preview of the last message for the contacts list."""

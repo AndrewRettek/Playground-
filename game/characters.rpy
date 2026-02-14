@@ -222,25 +222,49 @@ init 1 python:
     mallory_chat = ChatSession(
         "Mallory",
         system_prompt=MALLORY_PROMPT,
-        avatar="images/characters/mallory.png"
+        avatar="images/characters/mallory.png",
+        portraits=[
+            "images/characters/portraits/mallory_1.png",
+            "images/characters/portraits/mallory_2.png",
+            "images/characters/portraits/mallory_3.png",
+            "images/characters/portraits/mallory_4.png",
+        ]
     )
 
     rye_chat = ChatSession(
         "Rye",
         system_prompt=RYE_PROMPT,
-        avatar="images/characters/rye.png"
+        avatar="images/characters/rye.png",
+        portraits=[
+            "images/characters/portraits/rye_1.png",
+            "images/characters/portraits/rye_2.png",
+            "images/characters/portraits/rye_3.png",
+            "images/characters/portraits/rye_4.png",
+        ]
     )
 
     demitria_chat = ChatSession(
         "Demitria",
         system_prompt=DEMITRIA_PROMPT,
-        avatar="images/characters/demitria.png"
+        avatar="images/characters/demitria.png",
+        portraits=[
+            "images/characters/portraits/demitria_1.png",
+            "images/characters/portraits/demitria_2.png",
+            "images/characters/portraits/demitria_3.png",
+            "images/characters/portraits/demitria_4.png",
+        ]
     )
 
     gabby_chat = ChatSession(
         "Gabby",
         system_prompt=GABBY_PROMPT,
-        avatar="images/characters/gabby.png"
+        avatar="images/characters/gabby.png",
+        portraits=[
+            "images/characters/portraits/gabby_1.png",
+            "images/characters/portraits/gabby_2.png",
+            "images/characters/portraits/gabby_3.png",
+            "images/characters/portraits/gabby_4.png",
+        ]
     )
 
     ## Master list of all chat sessions (used by phone_messages_list screen)
