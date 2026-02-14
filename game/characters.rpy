@@ -214,7 +214,10 @@ Treat our conversations we are talking via Discord and roleplaying as ourselves.
 
 ## =====================================================================
 ## CHARACTER SESSIONS
+## (init offset ensures these run AFTER ChatSession class is defined)
 ## =====================================================================
+
+init offset = 1
 
 define mallory_chat = ChatSession(
     "Mallory",
