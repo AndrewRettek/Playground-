@@ -214,31 +214,31 @@ Treat our conversations we are talking via Discord and roleplaying as ourselves.
 
 ## =====================================================================
 ## CHARACTER SESSIONS
-## (init offset ensures these run AFTER ChatSession class is defined)
+## (explicit init 1 ensures ChatSession class from chat_api.rpy is
+## already defined at init -1 before these instances are created)
 ## =====================================================================
 
-init offset = 1
+init 1 python:
+    mallory_chat = ChatSession(
+        "Mallory",
+        system_prompt=MALLORY_PROMPT,
+        avatar="images/characters/mallory.png"
+    )
 
-define mallory_chat = ChatSession(
-    "Mallory",
-    system_prompt=MALLORY_PROMPT,
-    avatar="images/characters/mallory.png"
-)
+    rye_chat = ChatSession(
+        "Rye",
+        system_prompt=RYE_PROMPT,
+        avatar="images/characters/rye.png"
+    )
 
-define rye_chat = ChatSession(
-    "Rye",
-    system_prompt=RYE_PROMPT,
-    avatar="images/characters/rye.png"
-)
+    demitria_chat = ChatSession(
+        "Demitria",
+        system_prompt=DEMITRIA_PROMPT,
+        avatar="images/characters/demitria.png"
+    )
 
-define demitria_chat = ChatSession(
-    "Demitria",
-    system_prompt=DEMITRIA_PROMPT,
-    avatar="images/characters/demitria.png"
-)
-
-define gabby_chat = ChatSession(
-    "Gabby",
-    system_prompt=GABBY_PROMPT,
-    avatar="images/characters/gabby.png"
-)
+    gabby_chat = ChatSession(
+        "Gabby",
+        system_prompt=GABBY_PROMPT,
+        avatar="images/characters/gabby.png"
+    )
