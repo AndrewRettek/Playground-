@@ -7,8 +7,8 @@ define config.version = "0.1.0"
 define config.save_directory = "FutaDomWorldChat-1234567890"
 
 ## Window size matching a phone-centric layout
-define config.screen_width = 1280
-define config.screen_height = 720
+define config.screen_width = 1920
+define config.screen_height = 1080
 
 ## Allow window resizing
 define config.window_icon = None
@@ -42,6 +42,7 @@ init python:
     build.classify("game/**.jpg", "all")
     build.classify("game/**.ogg", "all")
     build.classify("game/**.mp3", "all")
+    build.classify("game/**.wav", "all")
     build.classify("game/**.webp", "all")
     build.classify("game/**.txt", "all")
 

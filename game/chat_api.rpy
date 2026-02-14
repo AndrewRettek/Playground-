@@ -140,6 +140,7 @@ init python:
             self.is_loading = False
             self.unread_count = 0
             self._sound_pending = False
+            self.is_active = False
 
         def send_message(self, player_text):
             """Send a player message and start async AI response."""
@@ -165,7 +166,8 @@ init python:
             self.api_history.append({"role": "assistant", "content": ai_response})
             self.messages.append(ChatMessage(self.character_name, ai_response, get_timestamp()))
             self.is_loading = False
-            self.unread_count += 1
+            if not self.is_active:
+                self.unread_count += 1
             self._sound_pending = True
 
             ## Keep API history reasonable (last 20 exchanges)

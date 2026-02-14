@@ -92,6 +92,7 @@ label phone_main:
 
 label chat_loop:
     ## Mark messages as read when entering chat
+    $ current_chat.is_active = True
     $ current_chat.mark_read()
 
     label .loop:
@@ -100,6 +101,7 @@ label chat_loop:
         $ action = _return[0]
 
         if action == "back":
+            $ current_chat.is_active = False
             $ phone_state = "messages"
             return
 
