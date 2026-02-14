@@ -125,7 +125,7 @@ screen phone_messages_list(chat_sessions):
         xalign 0.5
         yalign 0.5
         xsize 630
-        ysize 870
+        ysize 810
         background Frame("gui/phone/phone_body.png", 45, 45, 45, 45)
         padding (3, 3, 3, 3)
 
@@ -237,7 +237,7 @@ screen phone_chat(session):
         xalign 0.5
         yalign 0.5
         xsize 630
-        ysize 870
+        ysize 810
         background Frame("gui/phone/phone_body.png", 45, 45, 45, 45)
         padding (3, 3, 3, 3)
 
@@ -261,9 +261,9 @@ screen phone_chat(session):
                 background Solid(PHONE_HEADER_BG)
                 padding (12, 9, 18, 9)
 
+                ## Left side: back, avatar, name
                 hbox:
                     spacing 15
-                    xfill True
                     yalign 0.5
 
                     ## Back button
@@ -286,17 +286,15 @@ screen phone_chat(session):
                         text session.character_name color "#ffffff" size 27 font PHONE_FONT_SEMI
                         text "Online" color session.accent_color size 20
 
-                    ## Spacer to push reset button right
-                    null
-
-                    ## Reset conversation button
-                    button:
-                        yalign 0.5
-                        padding (12, 6, 12, 6)
-                        background Solid("#ff4444aa")
-                        hover_background Solid("#ff6666cc")
-                        action Return(("reset", None))
-                        text "Clear" color "#ffffff" size 20 bold True
+                ## Reset conversation button (right-aligned)
+                button:
+                    xalign 1.0
+                    yalign 0.5
+                    padding (12, 8, 12, 8)
+                    background Solid("#ff4444aa")
+                    hover_background Solid("#ff6666cc")
+                    action Return(("reset", None))
+                    text "Clear" color "#ffffff" size 20 bold True
 
             ## Header accent line (character color)
             frame:
@@ -436,7 +434,7 @@ screen phone_contacts(chat_sessions):
         xalign 0.5
         yalign 0.5
         xsize 630
-        ysize 870
+        ysize 810
         background Frame("gui/phone/phone_body.png", 45, 45, 45, 45)
         padding (3, 3, 3, 3)
 

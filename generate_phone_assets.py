@@ -45,7 +45,7 @@ def gen_rounded_rect(filename, w, h, radius, fill, outline=None, outline_width=1
 
 
 def gen_phone_shadow():
-    w, h = 690, 930
+    w, h = 690, 870
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     draw.rounded_rectangle([(0, 0), (w - 1, h - 1)], radius=51, fill=(0, 0, 0, 120))
@@ -165,7 +165,7 @@ def main():
     # Phone frame
     print("  Phone body + shadow...")
     gen_rounded_rect(
-        "phone_body.png", 630, 960, 42, COLORS["phone_body"], COLORS["phone_border"], 2
+        "phone_body.png", 630, 900, 42, COLORS["phone_body"], COLORS["phone_border"], 2
     )
     gen_phone_shadow()
 
