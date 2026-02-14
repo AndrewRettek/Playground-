@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Remove backgrounds from Gemini-generated character portraits.
 
-Reads 16 source images named "Character N.png" from game/images/characters/,
+Reads 16 source JPG images from game/images/characters/,
 removes backgrounds using rembg, crops to 3:5 aspect ratio, resizes to
 360x600, and saves as character_n.png in the portraits directory.
 """
@@ -20,22 +20,22 @@ PORTRAIT_W, PORTRAIT_H = 360, 600
 # Source filename → output filename mapping
 # Source: "Character N.png", Output: "character_n.png"
 PORTRAITS = [
-    ("Mallory 1.png", "mallory_1.png"),
-    ("Mallory 2.png", "mallory_2.png"),
-    ("Mallory 3.png", "mallory_3.png"),
-    ("Mallory 4.png", "mallory_4.png"),
-    ("Rye 1.png", "rye_1.png"),
-    ("Rye 2.png", "rye_2.png"),
-    ("Rye 3.png", "rye_3.png"),
-    ("Rye 4.png", "rye_4.png"),
-    ("Demetria 1.png", "demitria_1.png"),
-    ("Demetria 2.png", "demitria_2.png"),
-    ("Demetria 3.png", "demitria_3.png"),
-    ("Demetria 4.png", "demitria_4.png"),
-    ("Gabby 1.png", "gabby_1.png"),
-    ("Gabby 2.png", "gabby_2.png"),
-    ("Gabby 3.png", "gabby_3.png"),
-    ("Gabby 4.png", "gabby_4.png"),
+    ("Mallroy1.jpg", "mallory_1.png"),
+    ("mallory2.jpg", "mallory_2.png"),
+    ("mallory3.jpg", "mallory_3.png"),
+    ("mallory4.jpg", "mallory_4.png"),
+    ("Rye1.jpg", "rye_1.png"),
+    ("rye2.jpg", "rye_2.png"),
+    ("rye3.jpg", "rye_3.png"),
+    ("rye4.jpg", "rye_4.png"),
+    ("Demetria.jpg", "demitria_1.png"),
+    ("Demetria2.jpg", "demitria_2.png"),
+    ("Demetria3.jpg", "demitria_3.png"),
+    ("Demetria4.jpg", "demitria_4.png"),
+    ("Gabby1.jpg", "gabby_1.png"),
+    ("Gabby2.jpg", "gabby_2.png"),
+    ("Gabby3.jpg", "gabby_3.png"),
+    ("Gabby4.jpg", "gabby_4.png"),
 ]
 
 
