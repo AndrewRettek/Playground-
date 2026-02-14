@@ -12,14 +12,23 @@ FutaDomWorld Chat is a desktop app that simulates a phone messaging interface. Y
 - **Demitria** — The Eminence, regal head of the Imperial Temple
 - **Gabby** — A friendly teal-haired IT worker
 
-## Screenshots
+## Features
 
 The app features a phone-style UI with:
 - Rounded phone frame with shadow and depth
 - Circular character avatars with colored border rings
 - Rounded chat bubbles (blue for player, dark for characters)
-- Dark cohesive color scheme with ornate UI art
-- Custom status bar icons, navigation, and input fields
+- Dark cohesive color scheme with ornate Midjourney-generated UI art
+- Per-character accent colors (gold, red, purple, teal) in headers, badges, and status
+- Animated typing indicator (bouncing dots) while waiting for AI responses
+- Async AI responses — the game stays interactive while the character "types"
+- Message timestamps and read receipts
+- Unread message count badges on the contacts list
+- Sound effects for sent and received messages
+- Smooth dissolve transitions between screens
+- Phone entrance animation (fade + zoom)
+- Inter font family for clean, modern typography
+- Shared world setting prompt that applies to all characters automatically
 
 ## Tech Stack
 
@@ -28,6 +37,8 @@ The app features a phone-style UI with:
 - **Proxy Server**: Flask app deployed on [Railway](https://railway.app/) — sits between the game and DeepInfra to keep the API key secure
 - **Character Art**: Generated with [Midjourney](https://www.midjourney.com/)
 - **UI Art**: Midjourney-generated backgrounds and banners, plus programmatically generated phone chrome (rounded corners, icons, bubbles) using Python/PIL
+- **Font**: [Inter](https://rsms.me/inter/) — clean, modern sans-serif by Rasmus Andersson
+- **Sound Effects**: Programmatically generated WAV tones using Python's `wave` module
 
 ## How It Was Built
 
@@ -42,14 +53,18 @@ This project was built collaboratively between a human developer and **Claude** 
 - Processed and integrated all Midjourney art (resizing, cropping, darkening, circular masking)
 - Configured Railway deployment (Procfile, nixpacks.toml, railway.toml)
 - Debugged Ren'Py screen language issues (dynamic screen delegation, input handling, displayable properties)
+- Added polish: animated typing indicator, per-character accent colors, timestamps, read receipts, unread badges, sound effects, screen transitions, phone entrance animation
+- Implemented async API calls (background threads with `renpy.invoke_in_thread()`)
+- Integrated Inter font family and generated sound effect WAVs programmatically
 - Built distributable packages for Windows, Mac, and Linux
 
 **What the human did:**
 - Creative direction and game design decisions
 - Wrote all character system prompts (personalities, lore, backstories)
+- Wrote the comprehensive world setting prompt (Empire lore, biology, laws, locations, organizations)
 - Generated character portraits and UI art in Midjourney using Claude's prompts
 - Provided the DeepInfra API key and Railway deployment
-- QA testing and feedback on visual design
+- QA testing, visual design direction, and feedback
 
 ## Running Locally
 
@@ -81,12 +96,14 @@ The game connects to the proxy server URL configured in `game/chat_api.rpy` (`PR
 ```
 ├── game/
 │   ├── chat_api.rpy          # Proxy server integration, ChatSession class
-│   ├── characters.rpy         # Character definitions and system prompts
-│   ├── phone_screens.rpy      # Phone UI (messages, chat, contacts)
+│   ├── characters.rpy         # World setting + character definitions and system prompts
+│   ├── phone_screens.rpy      # Phone UI (messages, chat, contacts), transforms
 │   ├── screens.rpy            # Main menu, subscription, standard Ren'Py screens
-│   ├── script.rpy             # Main game flow and state machine
+│   ├── script.rpy             # Main game flow, state machine, transitions
 │   ├── options.rpy            # Build config
-│   ├── gui.rpy                # GUI colors and fonts
+│   ├── gui.rpy                # GUI colors and fonts (Inter)
+│   ├── audio/                 # Sound effects (message sent/received)
+│   ├── gui/fonts/             # Inter font family (Regular, Medium, SemiBold, Bold)
 │   ├── gui/phone/             # Generated phone UI assets (PIL)
 │   ├── images/characters/     # Character portrait art (Midjourney)
 │   └── images/ui/             # UI art (Midjourney, processed)
@@ -94,6 +111,7 @@ The game connects to the proxy server URL configured in `game/chat_api.rpy` (`PR
 │   ├── app.py                 # Flask proxy server
 │   └── requirements.txt       # Server dependencies
 ├── generate_phone_assets.py   # PIL script to generate phone UI PNGs
+├── generate_sounds.py         # Script to generate sound effect WAVs
 ├── process_ui_assets.py       # PIL script to resize Midjourney UI art
 ├── Procfile                   # Railway start command
 ├── railway.toml               # Railway build config
