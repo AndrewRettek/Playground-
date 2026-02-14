@@ -183,6 +183,14 @@ init python:
             for msg in self.messages:
                 msg.read = True
 
+        def reset(self):
+            """Clear all messages and start fresh."""
+            self.messages = []
+            self.api_history = []
+            self.is_loading = False
+            self.unread_count = 0
+            self._sound_pending = False
+
         def get_circle_avatar(self):
             """Return the path to this character's circular avatar."""
             return "gui/phone/avatar_" + self.character_name.lower() + "_circle.png"

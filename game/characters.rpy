@@ -216,25 +216,25 @@ Treat our conversations we are talking via Discord and roleplaying as ourselves.
 ## CHARACTER SESSIONS
 ## =====================================================================
 
-default mallory_chat = ChatSession(
+define mallory_chat = ChatSession(
     "Mallory",
     system_prompt=MALLORY_PROMPT,
     avatar="images/characters/mallory.png"
 )
 
-default rye_chat = ChatSession(
+define rye_chat = ChatSession(
     "Rye",
     system_prompt=RYE_PROMPT,
     avatar="images/characters/rye.png"
 )
 
-default demitria_chat = ChatSession(
+define demitria_chat = ChatSession(
     "Demitria",
     system_prompt=DEMITRIA_PROMPT,
     avatar="images/characters/demitria.png"
 )
 
-default gabby_chat = ChatSession(
+define gabby_chat = ChatSession(
     "Gabby",
     system_prompt=GABBY_PROMPT,
     avatar="images/characters/gabby.png"

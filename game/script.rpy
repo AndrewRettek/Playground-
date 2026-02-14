@@ -5,9 +5,9 @@
 ## in characters.rpy
 ## ===================================================================
 
-default all_chats = [mallory_chat, rye_chat, demitria_chat, gabby_chat]
+define all_chats = [mallory_chat, rye_chat, demitria_chat, gabby_chat]
 ## When you add more characters in characters.rpy, add them here:
-## default all_chats = [mallory_chat, char2_chat, char3_chat]
+## define all_chats = [mallory_chat, char2_chat, char3_chat]
 
 ## Track which screen we're on
 default phone_state = "messages"
@@ -110,5 +110,8 @@ label chat_loop:
             if player_msg:
                 $ renpy.play("audio/message_sent.wav", channel="sound")
                 $ current_chat.send_message(player_msg)
+
+        elif action == "reset":
+            $ current_chat.reset()
 
     jump .loop
