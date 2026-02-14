@@ -1,6 +1,6 @@
 ## chat_api.rpy - Proxy server integration for chatbot responses
 
-init python:
+init -1 python:
     import json
     import time
 
