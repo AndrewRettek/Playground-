@@ -130,7 +130,7 @@ init python:
             self.character_name = character_name
             ## Combine world setting with character-specific prompt
             if system_prompt:
-                self.system_prompt = WORLD_SETTING_PROMPT + "\n\n" + system_prompt
+                self.system_prompt = WORLD_SETTING_PROMPT + "\n\n" + system_prompt + "\n\nFORMAT: Write only your character's message text. Never include *typing*, *sends message*, or other action/status markers."
             else:
                 self.system_prompt = DEFAULT_SYSTEM_PROMPT
             self.avatar = avatar or "images/characters/placeholder_avatar.png"
