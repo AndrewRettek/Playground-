@@ -220,23 +220,27 @@ def _handle_legacy_format(data):
     if not messages:
         return jsonify({"error": "Empty messages array"}), 400
 
-    # Extract system prompt from messages if present
+    # Extract system prompt, then split remaining messages into
+    # history (all but last user message) + current user_message (last user message)
     system_prompt = ""
-    history = []
-    user_message = ""
+    non_system = []
 
     for msg in messages:
         role = msg.get("role", "")
         content = msg.get("content", "")
         if role == "system":
             system_prompt = content
-        elif role == "user":
-            # Last user message is the current one
-            if user_message:
-                history.append({"role": "user", "content": user_message})
-            user_message = content
-        elif role == "assistant":
-            history.append({"role": "assistant", "content": content})
+        else:
+            non_system.append({"role": role, "content": content})
+
+    # Last user message is the current one; everything before it is history
+    user_message = ""
+    history = []
+    for i in range(len(non_system) - 1, -1, -1):
+        if non_system[i]["role"] == "user":
+            user_message = non_system[i]["content"]
+            history = non_system[:i]
+            break
 
     if not user_message:
         return jsonify({"error": "No user message found"}), 400
