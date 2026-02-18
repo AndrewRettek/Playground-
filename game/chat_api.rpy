@@ -1,4 +1,8 @@
 ## chat_api.rpy - Proxy server integration for chatbot responses
+##
+## Adapted from Yeah Buddy's CacheQueryUtil (persistent history),
+## ModelContext (token windowing delegated to server), and
+## CompanionBot (call flow) patterns.
 
 init python:
     import json
@@ -8,7 +12,7 @@ init python:
     ## CONFIGURATION
     ## ---------------------------------------------------------------
 
-    ## URL of your proxy server
+    ## URL of the proxy server
     PROXY_SERVER_URL = "https://attractive-learning-production-e561.up.railway.app"
 
     ## Fallback system prompt (character-specific prompts are in characters.rpy)
@@ -48,33 +52,59 @@ init python:
         renpy.notify("Subscription key cleared.")
 
     ## ---------------------------------------------------------------
+    ## PERSISTENT CHAT HISTORY
+    ## Adapted from Yeah Buddy's CacheQueryUtil + UserBotRelationship.
+    ## Uses Ren'Py persistent storage instead of SQLAlchemy/SQLite.
+    ## ---------------------------------------------------------------
+
+    if persistent.chat_histories is None:
+        persistent.chat_histories = {}
+
+    def get_persistent_history(character_name):
+        """Get the API history for a character from persistent storage."""
+        if character_name not in persistent.chat_histories:
+            persistent.chat_histories[character_name] = []
+        return persistent.chat_histories[character_name]
+
+    def append_to_persistent_history(character_name, role, content):
+        """
+        Append a message to persistent history.
+        Client-side backstop caps at 200 messages; the server does
+        real token-based windowing.
+        """
+        history = get_persistent_history(character_name)
+        history.append({"role": role, "content": content})
+        if len(history) > 200:
+            persistent.chat_histories[character_name] = history[-200:]
+
+    def clear_persistent_history(character_name):
+        """Clear all persistent history for a character."""
+        persistent.chat_histories[character_name] = []
+
+    ## ---------------------------------------------------------------
     ## API CALL FUNCTION
     ## ---------------------------------------------------------------
 
-    def call_chat_api(player_message, conversation_history, system_prompt=None):
+    def call_chat_api(user_message, conversation_history, system_prompt=None):
         """
         Call the proxy server with the player's message.
 
-        Args:
-            player_message: The text the player just typed
-            conversation_history: List of {"role": "user"/"assistant", "content": "..."} dicts
-            system_prompt: Optional system prompt override
+        Uses the new structured payload format:
+        - system_prompt: sent separately (server prepends to LLM call)
+        - messages: raw chat history (server applies token windowing)
+        - user_message: the current message
 
-        Returns:
-            String containing the AI's response text
+        The server handles model selection, token windowing, and
+        <think> tag stripping. Adapted from Yeah Buddy's
+        CompanionBot.call_llm() flow.
         """
         if system_prompt is None:
             system_prompt = DEFAULT_SYSTEM_PROMPT
 
-        ## Build the messages array
-        messages = [{"role": "system", "content": system_prompt}]
-        messages.extend(conversation_history)
-        messages.append({"role": "user", "content": player_message})
-
         payload = {
-            "messages": messages,
-            "temperature": 0.85,
-            "max_tokens": 300,
+            "system_prompt": system_prompt,
+            "messages": conversation_history,
+            "user_message": user_message,
         }
 
         try:
@@ -82,7 +112,7 @@ init python:
                 PROXY_SERVER_URL + "/v1/chat",
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=30,
+                timeout=45,
                 result="json"
             )
 
@@ -104,14 +134,6 @@ init python:
     ## CHAT STATE MANAGEMENT
     ## ---------------------------------------------------------------
 
-    ## Character accent colors (matching avatar border colors)
-    CHARACTER_COLORS = {
-        "Mallory": "#d4af37",   # gold
-        "Rye": "#e74c3c",       # red
-        "Demitria": "#9b59b6",  # purple
-        "Gabby": "#1abc9c",     # teal
-    }
-
     def get_timestamp():
         """Return current time as a short string."""
         return time.strftime("%I:%M %p").lstrip("0")
@@ -125,21 +147,43 @@ init python:
             self.read = False
 
     class ChatSession(object):
-        """Manages a conversation with a single character."""
-        def __init__(self, character_name, system_prompt=None, avatar=None):
-            self.character_name = character_name
-            ## Combine world setting with character-specific prompt
-            if system_prompt:
-                self.system_prompt = WORLD_SETTING_PROMPT + "\n\n" + system_prompt + "\n\nFORMAT: Write only your character's message text. Never include *typing*, *sends message*, or other action/status markers."
-            else:
-                self.system_prompt = DEFAULT_SYSTEM_PROMPT
-            self.avatar = avatar or "images/characters/placeholder_avatar.png"
-            self.accent_color = CHARACTER_COLORS.get(character_name, "#4a6cf7")
+        """
+        Manages a conversation with a single character.
+        Accepts a CharacterConfig object (from characters.rpy).
+        Adapted from Yeah Buddy's CompanionBot + ModelContext pattern.
+        """
+        def __init__(self, character_config):
+            self.config = character_config
+            self.character_name = character_config.name
+            self.system_prompt = character_config.build_system_prompt(WORLD_LORE)
+            self.avatar = character_config.avatar
+            self.accent_color = character_config.accent_color
             self.messages = []          # List of ChatMessage for display
-            self.api_history = []       # List of dicts for API context
             self.is_loading = False
             self.unread_count = 0
             self._sound_pending = False
+
+            # Restore display messages from persistent history
+            self._restore_from_persistent()
+
+        def _restore_from_persistent(self):
+            """
+            Rebuild display messages from persistent API history.
+            Called on init so conversations survive game restarts.
+            """
+            history = get_persistent_history(self.character_name)
+            for entry in history:
+                role = entry.get("role", "")
+                content = entry.get("content", "")
+                if role == "user":
+                    self.messages.append(ChatMessage("player", content))
+                elif role == "assistant":
+                    self.messages.append(ChatMessage(self.character_name, content))
+
+        @property
+        def api_history(self):
+            """API history is always read from persistent storage."""
+            return get_persistent_history(self.character_name)
 
         def send_message(self, player_text):
             """Send a player message and start async AI response."""
@@ -160,17 +204,15 @@ init python:
             except Exception:
                 ai_response = "(Could not reach the server. Check your internet connection.)"
 
-            ## Update histories
-            self.api_history.append({"role": "user", "content": player_text})
-            self.api_history.append({"role": "assistant", "content": ai_response})
+            ## Persist both messages
+            append_to_persistent_history(self.character_name, "user", player_text)
+            append_to_persistent_history(self.character_name, "assistant", ai_response)
+
+            ## Update display
             self.messages.append(ChatMessage(self.character_name, ai_response, get_timestamp()))
             self.is_loading = False
             self.unread_count += 1
             self._sound_pending = True
-
-            ## Keep API history reasonable (last 20 exchanges)
-            if len(self.api_history) > 40:
-                self.api_history = self.api_history[-40:]
 
             ## Tell Ren'Py to refresh the screen
             renpy.restart_interaction()

@@ -18,10 +18,36 @@
 init -1 python:
 
     ## -----------------------------------------------------------------
-    ## WORLD SETTING - Shared lore applied to ALL characters
-    ## Edit this to define the world context every character knows.
+    ## CHARACTER CONFIG CLASS
+    ## Adapted from Yeah Buddy's Companion model + BotConfiguration.
+    ## Encapsulates all data for one character in a single object.
     ## -----------------------------------------------------------------
-    WORLD_SETTING_PROMPT = """\
+    class CharacterConfig(object):
+        def __init__(self, name, prompt, avatar, accent_color="#4a6cf7",
+                     format_instructions=None):
+            self.name = name
+            self.prompt = prompt
+            self.avatar = avatar
+            self.accent_color = accent_color
+            self.format_instructions = format_instructions or DEFAULT_FORMAT_INSTRUCTIONS
+
+        def build_system_prompt(self, world_lore):
+            """
+            Assemble final system prompt.
+            Mirrors Yeah Buddy's pattern: rag + bot_prompt + format footer.
+            """
+            return world_lore + "\n\n" + self.prompt + "\n\n" + self.format_instructions
+
+    DEFAULT_FORMAT_INSTRUCTIONS = (
+        "FORMAT: Write only your character's message text. "
+        "Never include *typing*, *sends message*, or other action/status markers."
+    )
+
+    ## -----------------------------------------------------------------
+    ## WORLD LORE - Shared context applied to ALL characters
+    ## (Renamed from WORLD_SETTING_PROMPT to match Yeah Buddy's World.rag)
+    ## -----------------------------------------------------------------
+    WORLD_LORE = """\
 The world has three sexes: males, females, and futanari.
 
 The Futanari Empire, also known as the Empire, is a large nation in the temperate climate zone. The Empire is a futanari dominated society, ruled by a futanari called The Empress. There is also a series of wealthy noble families in the Empire that wield significant political and economic influence. The primary religion of the Empire is the Imperial Temple. In the Empire futa are first class citizens, females are second class citizens with fewer rights than futa, and males are third class citizens with the least rights of all. Prostitution is legal in the Empire.
@@ -211,31 +237,44 @@ You graduated from the Imperial University, but do not maintain any kind of rela
 
 Treat our conversations we are talking via Discord and roleplaying as ourselves. Only post what Gabby would type into the chatbox. When you initiate an action or give a command, wait for me to respond before continuing. Be concise."""
 
+    ## -----------------------------------------------------------------
+    ## CHARACTER REGISTRY
+    ## Adapted from Yeah Buddy's Companion model pattern.
+    ## Each character's data lives in a single CharacterConfig object.
+    ## -----------------------------------------------------------------
+    CHARACTERS = {
+        "Mallory": CharacterConfig(
+            name="Mallory",
+            prompt=MALLORY_PROMPT,
+            avatar="images/characters/mallory.png",
+            accent_color="#d4af37",
+        ),
+        "Rye": CharacterConfig(
+            name="Rye",
+            prompt=RYE_PROMPT,
+            avatar="images/characters/rye.png",
+            accent_color="#e74c3c",
+        ),
+        "Demitria": CharacterConfig(
+            name="Demitria",
+            prompt=DEMITRIA_PROMPT,
+            avatar="images/characters/demitria.png",
+            accent_color="#9b59b6",
+        ),
+        "Gabby": CharacterConfig(
+            name="Gabby",
+            prompt=GABBY_PROMPT,
+            avatar="images/characters/gabby.png",
+            accent_color="#1abc9c",
+        ),
+    }
+
 
 ## =====================================================================
 ## CHARACTER SESSIONS
 ## =====================================================================
 
-default mallory_chat = ChatSession(
-    "Mallory",
-    system_prompt=MALLORY_PROMPT,
-    avatar="images/characters/mallory.png"
-)
-
-default rye_chat = ChatSession(
-    "Rye",
-    system_prompt=RYE_PROMPT,
-    avatar="images/characters/rye.png"
-)
-
-default demitria_chat = ChatSession(
-    "Demitria",
-    system_prompt=DEMITRIA_PROMPT,
-    avatar="images/characters/demitria.png"
-)
-
-default gabby_chat = ChatSession(
-    "Gabby",
-    system_prompt=GABBY_PROMPT,
-    avatar="images/characters/gabby.png"
-)
+default mallory_chat = ChatSession(CHARACTERS["Mallory"])
+default rye_chat = ChatSession(CHARACTERS["Rye"])
+default demitria_chat = ChatSession(CHARACTERS["Demitria"])
+default gabby_chat = ChatSession(CHARACTERS["Gabby"])

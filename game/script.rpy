@@ -25,6 +25,20 @@ label start:
     return
 
 ## ===================================================================
+## SAVE MIGRATION - Handles old saves with previous ChatSession format
+## ===================================================================
+
+label after_load:
+    python:
+        if not hasattr(mallory_chat, 'config'):
+            mallory_chat = ChatSession(CHARACTERS["Mallory"])
+            rye_chat = ChatSession(CHARACTERS["Rye"])
+            demitria_chat = ChatSession(CHARACTERS["Demitria"])
+            gabby_chat = ChatSession(CHARACTERS["Gabby"])
+            all_chats = [mallory_chat, rye_chat, demitria_chat, gabby_chat]
+    return
+
+## ===================================================================
 ## SUBSCRIPTION KEY FLOW (called from main menu)
 ## ===================================================================
 
