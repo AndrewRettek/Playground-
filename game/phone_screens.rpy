@@ -1,4 +1,4 @@
-## phone_screens.rpy - Phone UI screens styled to match FutaDomWorld aesthetic (1280x720)
+## phone_screens.rpy - Phone UI screens for BindrChat (1280x720)
 
 ## ===================================================================
 ## COLOR CONSTANTS

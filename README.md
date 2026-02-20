@@ -1,10 +1,10 @@
-# FutaDomWorld Chat
+# BindrChat
 
 A standalone chat companion app built as a spinoff of [FutaDomWorld](https://store.steampowered.com/app/1296590/FutaDomWorld/). Chat with AI-powered characters through a stylized phone interface built in Ren'Py.
 
 ## What Is This?
 
-FutaDomWorld Chat is a desktop app that simulates a phone messaging interface. You select a character from your contacts list and have freeform conversations powered by AI (DeepSeek V3 via DeepInfra). Each character has a unique personality defined by detailed system prompts.
+BindrChat is a desktop app that simulates a phone messaging interface. You select a character from your contacts list and have freeform conversations powered by AI (DeepSeek V3 via DeepInfra). Each character has a unique personality defined by detailed system prompts.
 
 ### Characters
 - **Mallory** — A young temple acolyte with a golden halo and quiet devotion
@@ -120,4 +120,4 @@ The game connects to the proxy server URL configured in `game/chat_api.rpy` (`PR
 
 ## License
 
-This is a proprietary project — part of the FutaDomWorld franchise. All rights reserved.
+This is a proprietary project — part of the BindrChat / FutaDomWorld franchise. All rights reserved.

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-FutaDomWorld Chat - A Ren'Py phone texting simulator where players chat with AI characters via DeepInfra (DeepSeek V3.2). Spinoff of FutaDomWorld, targeting Steam with adult content rating. Subscription-based access through a proxy server.
+BindrChat - A Ren'Py phone texting simulator where players chat with AI characters via DeepInfra (DeepSeek V3.2). Spinoff of FutaDomWorld, targeting Steam with adult content rating. Subscription-based access through a proxy server.
 
 ### Technology Stack
 

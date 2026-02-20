@@ -1,10 +1,10 @@
 ## options.rpy - Game configuration for Steam distribution
 
-define config.name = _("FutaDomWorld Chat")
+define config.name = _("BindrChat")
 define config.version = "0.1.0"
 
 ## Save directory name - must be unique per game
-define config.save_directory = "FutaDomWorldChat-1234567890"
+define config.save_directory = "BindrChat-1234567890"
 
 ## Logical resolution (matches art assets at 1280x720)
 define config.screen_width = 1280
@@ -36,7 +36,7 @@ default preferences.afm_time = 15
 
 ## Build configuration for Steam
 init python:
-    build.name = "FutaDomWorldChat"
+    build.name = "BindrChat"
 
     ## File classifications
     build.classify("game/**.rpy", None)
