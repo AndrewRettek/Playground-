@@ -1,0 +1,21 @@
+# Ren'Py compiled files
+*.rpyc
+
+# Ren'Py cache and saves
+game/cache/
+game/saves/
+
+# Ren'Py logs and error files
+log.txt
+errors.txt
+trace.txt
+traceback.txt
+
+# Server secrets (never commit real .env)
+server/.env
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db

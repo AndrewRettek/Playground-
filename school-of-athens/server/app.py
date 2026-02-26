@@ -1,0 +1,183 @@
+"""
+School of Athens - Proxy Server
+Sits between the game client and DeepInfra API.
+- Keeps the real API key server-side
+- Validates player subscription tokens
+- Rate-limits requests per player
+- Forwards chat completions to DeepInfra
+"""
+
+import os
+import time
+import hashlib
+import json
+from functools import wraps
+from flask import Flask, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+# ---------------------------------------------------------------------------
+# CONFIGURATION
+# ---------------------------------------------------------------------------
+DEEPINFRA_API_KEY = os.environ.get("DEEPINFRA_API_KEY", "")
+DEEPINFRA_URL = "https://api.deepinfra.com/v1/openai/chat/completions"
+DEEPINFRA_MODEL = os.environ.get("DEEPINFRA_MODEL", "deepseek-ai/DeepSeek-V3-0324")
+
+TOKEN_SECRET = os.environ.get("TOKEN_SECRET", "CHANGE_ME_IN_PRODUCTION")
+
+RATE_LIMIT_PER_MINUTE = int(os.environ.get("RATE_LIMIT_PER_MINUTE", "20"))
+MAX_TOKENS = int(os.environ.get("MAX_TOKENS", "300"))
+
+# ---------------------------------------------------------------------------
+# IN-MEMORY STORES
+# ---------------------------------------------------------------------------
+
+valid_tokens = {}
+rate_limit_store = {}
+
+
+# ---------------------------------------------------------------------------
+# HELPERS
+# ---------------------------------------------------------------------------
+
+def validate_token(token):
+    if token in valid_tokens:
+        info = valid_tokens[token]
+        if info["expires"] > time.time():
+            return info["player_id"]
+    return None
+
+
+def check_rate_limit(player_id):
+    now = time.time()
+    window_start = now - 60
+
+    if player_id not in rate_limit_store:
+        rate_limit_store[player_id] = []
+
+    rate_limit_store[player_id] = [
+        t for t in rate_limit_store[player_id] if t > window_start
+    ]
+
+    if len(rate_limit_store[player_id]) >= RATE_LIMIT_PER_MINUTE:
+        return False
+
+    rate_limit_store[player_id].append(now)
+    return True
+
+
+def require_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Missing authorization token"}), 401
+
+        token = auth_header[7:]
+        player_id = validate_token(token)
+        if not player_id:
+            return jsonify({"error": "Invalid or expired subscription"}), 403
+
+        if not check_rate_limit(player_id):
+            return jsonify({"error": "Rate limit exceeded. Please wait a moment."}), 429
+
+        request.player_id = player_id
+        return f(*args, **kwargs)
+    return decorated
+
+
+# ---------------------------------------------------------------------------
+# ROUTES
+# ---------------------------------------------------------------------------
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"})
+
+
+@app.route("/v1/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    if not data or "messages" not in data:
+        return jsonify({"error": "Missing 'messages' in request body"}), 400
+
+    messages = data["messages"]
+    temperature = min(max(data.get("temperature", 0.85), 0.0), 2.0)
+    max_tokens = min(data.get("max_tokens", MAX_TOKENS), MAX_TOKENS)
+
+    payload = {
+        "model": DEEPINFRA_MODEL,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "top_p": 0.9,
+    }
+
+    try:
+        resp = requests.post(
+            DEEPINFRA_URL,
+            json=payload,
+            headers={
+                "Authorization": f"Bearer {DEEPINFRA_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        result = resp.json()
+
+        content = result["choices"][0]["message"]["content"]
+        return jsonify({"content": content})
+
+    except requests.exceptions.Timeout:
+        return jsonify({"error": "AI service timed out. Please try again."}), 504
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "AI service unavailable. Please try again later."}), 502
+
+
+# ---------------------------------------------------------------------------
+# TOKEN MANAGEMENT
+# ---------------------------------------------------------------------------
+
+@app.route("/admin/create_token", methods=["POST"])
+def create_token():
+    data = request.get_json()
+    admin_key = data.get("admin_key", "")
+
+    if admin_key != os.environ.get("ADMIN_KEY", "CHANGE_ME"):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    player_id = data.get("player_id", "")
+    duration_days = data.get("duration_days", 30)
+
+    if not player_id:
+        return jsonify({"error": "Missing player_id"}), 400
+
+    raw = f"{player_id}:{time.time()}:{TOKEN_SECRET}"
+    token = hashlib.sha256(raw.encode()).hexdigest()
+
+    valid_tokens[token] = {
+        "player_id": player_id,
+        "expires": time.time() + (duration_days * 86400),
+    }
+
+    return jsonify({
+        "token": token,
+        "player_id": player_id,
+        "expires_in_days": duration_days,
+    })
+
+
+# ---------------------------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    if not DEEPINFRA_API_KEY:
+        print("WARNING: DEEPINFRA_API_KEY not set!")
+    if TOKEN_SECRET == "CHANGE_ME_IN_PRODUCTION":
+        print("WARNING: TOKEN_SECRET is default - change for production!")
+
+    port = int(os.environ.get("PORT", "8080"))
+    app.run(host="0.0.0.0", port=port, debug=os.environ.get("DEBUG", "false").lower() == "true")

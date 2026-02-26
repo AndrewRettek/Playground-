@@ -2,183 +2,115 @@
 
 ## Project Overview
 
-This document provides context and guidance for Claude AI when working with this codebase.
-
-### Purpose
-
-[Describe the main purpose and goals of this project]
+BindrChat - A Ren'Py phone texting simulator where players chat with AI characters via DeepInfra (DeepSeek V3.2). Spinoff of FutaDomWorld, targeting Steam with adult content rating. Subscription-based access through a proxy server.
 
 ### Technology Stack
 
-- **Languages**: [e.g., Python, JavaScript, TypeScript, etc.]
-- **Frameworks**: [e.g., React, Django, Express, etc.]
-- **Database**: [e.g., PostgreSQL, MongoDB, etc.]
-- **Tools**: [e.g., Docker, npm, pip, etc.]
+- **Engine**: Ren'Py 8.x (Python-based visual novel engine)
+- **Language**: Ren'Py script (.rpy) + Python
+- **AI Backend**: DeepInfra API (DeepSeek V3.2) via proxy server
+- **Proxy Server**: Flask (Python)
+- **Target Platform**: Steam (Windows, Mac, Linux)
 
 ## Project Structure
 
 ```
 /
-├── src/           # Source code
-├── tests/         # Test files
-├── docs/          # Documentation
-└── config/        # Configuration files
+├── CLAUDE.MD
+├── .gitignore
+├── game/                       # Ren'Py game directory
+│   ├── characters.rpy          # <<< CHARACTER PROMPTS & DEFINITIONS GO HERE
+│   ├── chat_api.rpy            # Proxy server integration, ChatSession class
+│   ├── script.rpy              # Game entry point, phone navigation, chat loop
+│   ├── phone_screens.rpy       # Phone UI (messages list, chat view, contacts)
+│   ├── screens.rpy             # Menus, save/load, subscription key screen
+│   ├── options.rpy             # Steam build config, window settings
+│   ├── gui.rpy                 # Colors, fonts, sizing
+│   └── images/
+│       └── characters/         # <<< CHARACTER ART GOES HERE
+│           └── placeholder_avatar.png
+└── server/                     # Proxy server (deploy separately)
+    ├── app.py                  # Flask proxy (auth, rate limit, DeepInfra relay)
+    ├── requirements.txt        # Python dependencies
+    └── .env.example            # Template for server environment variables
 ```
 
-[Update this structure to match your actual project layout]
+## Where To Put Things
 
-## Development Setup
+### System Prompts
+Edit `game/characters.rpy` - each character has a named prompt variable:
+- `MALLORY_PROMPT` - Mallory's personality
+- `CHARACTER_2_PROMPT` through `CHARACTER_5_PROMPT` - slots for more characters
 
-### Prerequisites
+### Character Art
+Drop PNG files into `game/images/characters/`:
+- Name them anything (e.g. `mallory.png`, `vicky.png`)
+- Update the `avatar=` path in the ChatSession definition in `characters.rpy`
+- Recommended size: 128x128 or larger, square aspect ratio
 
-- [List required software, versions, etc.]
+### Adding a New Character
+1. Write their system prompt in `game/characters.rpy`
+2. Drop their avatar PNG in `game/images/characters/`
+3. Uncomment/add a `default xxx_chat = ChatSession(...)` block in `characters.rpy`
+4. Add them to the `all_chats` list in `game/script.rpy`
 
-### Installation
+### Proxy Server URL
+Edit `game/chat_api.rpy` line 11: `PROXY_SERVER_URL = "http://localhost:8080"`
+Change to your deployed server URL for production.
 
+## Running Locally
+
+### Game
+1. Install Ren'Py SDK 8.x from https://www.renpy.org/
+2. Open Ren'Py Launcher, point it at this project
+3. Click "Launch Project"
+
+### Proxy Server
 ```bash
-# Clone the repository
-git clone <repository-url>
-
-# Install dependencies
-[installation commands]
-
-# Set up environment variables
-[environment setup]
+cd server
+cp .env.example .env       # Edit .env with your real keys
+pip install -r requirements.txt
+python app.py
 ```
 
-### Running Locally
+## Server Deployment
 
-```bash
-# Start development server
-[run commands]
-```
+The proxy server keeps the DeepInfra API key server-side. Deploy to any Python hosting (Railway, Fly.io, Render, VPS, etc).
 
-### Testing
+Required environment variables (set on your hosting provider):
+- `DEEPINFRA_API_KEY` - Your DeepInfra API key
+- `TOKEN_SECRET` - Random secret for signing player tokens
+- `ADMIN_KEY` - Secret for the admin token-creation endpoint
+- `DEEPINFRA_MODEL` - Model ID (default: `deepseek-ai/DeepSeek-V3-0324`)
 
-```bash
-# Run tests
-[test commands]
-```
+Create player tokens via: `POST /admin/create_token` with `{"admin_key": "...", "player_id": "...", "duration_days": 30}`
 
-## Key Files and Components
+## Architecture
 
-### Core Files
-
-- `[filename]`: [Description of what this file does]
-- `[filename]`: [Description of what this file does]
-
-### Important Patterns
-
-- [Describe any important architectural patterns, coding conventions, or design decisions]
-
-## Development Guidelines
-
-### Code Style
-
-- [Formatting preferences, linting rules, etc.]
-- [Naming conventions]
-
-### Git Workflow
-
-- **Main Branch**: `main` or `master`
-- **Feature Branches**: `feature/<name>` or `claude/<name>`
-- **Commit Messages**: [Convention for commit messages]
-
-### Testing Requirements
-
-- [When tests are required]
-- [Coverage expectations]
-
-## Common Tasks
-
-### Adding a New Feature
-
-1. [Step-by-step process]
-2. [Files typically involved]
-3. [Testing approach]
-
-### Debugging
-
-- [Common debugging approaches]
-- [Useful commands]
-- [Log locations]
-
-## Dependencies
-
-### Key Dependencies
-
-- `[package-name]`: [Why it's used, version constraints]
-- `[package-name]`: [Why it's used, version constraints]
-
-### Updating Dependencies
-
-```bash
-[commands to update dependencies]
-```
-
-## API Documentation
-
-[If applicable: API endpoints, authentication, request/response formats]
-
-## Configuration
-
-### Environment Variables
-
-- `VAR_NAME`: [Description and example value]
-- `VAR_NAME`: [Description and example value]
-
-### Configuration Files
-
-- `[config-file]`: [Purpose and key settings]
-
-## Deployment
-
-### Production Deployment
-
-[Steps or commands for deploying to production]
-
-### Staging/Testing Environments
-
-[Information about non-production environments]
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue**: [Problem description]
-- **Solution**: [How to fix it]
-
-**Issue**: [Problem description]
-- **Solution**: [How to fix it]
-
-## Additional Resources
-
-- [Links to external documentation]
-- [Related repositories]
-- [Team contacts or resources]
+- Game client authenticates with proxy using player subscription tokens
+- Proxy validates token, rate-limits (20 req/min), forwards to DeepInfra
+- API key never ships in the game build
+- Player tokens stored in Ren'Py `persistent` (survives across game sessions)
+- Phone UI uses `call screen` pattern with state machine in `script.rpy`
+- Chat history capped at 40 messages (20 exchanges) for token management
+- Phone styling constants at top of `phone_screens.rpy`
 
 ## Notes for Claude AI
 
-### Project-Specific Guidance
+- Do NOT commit API keys or .env files
+- Character prompts and definitions are in `characters.rpy`, NOT `chat_api.rpy`
+- When adding characters, update both `characters.rpy` and the `all_chats` list in `script.rpy`
+- Phone UI colors are `define` constants in `phone_screens.rpy`
+- `renpy.fetch()` is used for HTTP (built-in, non-blocking)
+- `persistent.player_token` stores the subscription key across sessions
 
-- [Any special considerations when modifying code]
-- [Areas that require extra care]
-- [Known technical debt or limitations]
+## Self-Review Checklist
 
-### Testing Strategy
+**After every code change, review your work for bugs and problems before committing.** Walk through these checks:
 
-- [When to run tests]
-- [How to validate changes]
-
-### Code Review Checklist
-
-- [ ] Code follows project style guidelines
-- [ ] Tests are included and passing
-- [ ] Documentation is updated
-- [ ] No sensitive data is committed
-- [ ] Breaking changes are documented
-
----
-
-**Last Updated**: 2026-01-13
-**Maintained By**: [Your name or team]
+1. **Ren'Py screen layout** — Did you break alignment? Check `yalign`, `xalign`, `ysize` vs `yminimum` interactions. If you remove a centering property from a parent, child elements may drift.
+2. **Ren'Py displayable limitations** — `input` is single-line by default and may not support multi-line wrapping. `pixel_width` causes horizontal scrolling, not wrapping. Test assumptions about how displayables behave.
+3. **Viewport scroll state** — The dynamic viewport ID trick (`"chat_vp_%d_%s" % (len(session.messages), session.is_loading)`) resets scroll on state changes. If you add new state that affects content height, include it in the ID.
+4. **Side effects of changes** — If you change a fixed `ysize` to `yminimum`, check what fills the remaining space (`yfill True` elements will shrink). If you change an hbox's `yalign`, check all children's vertical positioning.
+5. **Asset pipeline** — When processing images, verify output dimensions and transparency. View a sample from each character, not just one.
+6. **File naming** — Source images may have spaces and capitals (`"Mallory 1.png"`). Output files use lowercase + underscores (`mallory_1.png`). The game code references the lowercase versions.
