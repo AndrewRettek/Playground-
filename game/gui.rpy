@@ -12,6 +12,7 @@ define gui.selected_color = '#ffffff'
 define gui.insensitive_color = '#55555580'
 define gui.muted_color = '#3d5166'
 define gui.hover_muted_color = '#5b7a99'
+define gui.accent_warm = "#E8849A"      ## Rose pink — dating sim accent
 define gui.text_color = '#ffffff'
 define gui.interface_text_color = '#ffffff'
 

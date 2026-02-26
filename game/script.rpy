@@ -29,12 +29,24 @@ label start:
 
 label after_load:
     python:
+        ## Migrate saves from before CharacterConfig pattern
         if not hasattr(mallory_chat, 'config'):
             mallory_chat = ChatSession(CHARACTERS["Mallory"])
             rye_chat = ChatSession(CHARACTERS["Rye"])
             demitria_chat = ChatSession(CHARACTERS["Demitria"])
             gabby_chat = ChatSession(CHARACTERS["Gabby"])
             all_chats = [mallory_chat, rye_chat, demitria_chat, gabby_chat]
+        ## Migrate saves from before portraits were added
+        for _chat in all_chats:
+            if not hasattr(_chat, 'portraits'):
+                _chat.portraits = _chat.config.portraits
+                _chat.portrait_index = 0
+            ## Migrate saves from before hearts were added
+            if not hasattr(_chat, '_hearts_pending'):
+                _chat._hearts_pending = False
+            ## Migrate saves with old raw portrait paths to processed versions
+            if _chat.portraits and "portraits/" not in _chat.portraits[0]:
+                _chat.portraits = _chat.config.portraits
     return
 
 ## ===================================================================
@@ -67,11 +79,17 @@ label subscription_flow:
 label phone_main:
     $ phone_state = "messages"
 
+    ## Play chat ambient music (crossfades from main menu music)
+    $ renpy.music.play("audio/chat_ambient.wav", fadeout=1.0, fadein=1.0)
+
     label .loop:
 
         if phone_state == "messages":
             $ renpy.transition(phone_transition)
             call screen phone_messages_list(all_chats)
+
+            if _return is None:
+                jump .loop
 
             $ action = _return[0]
             $ data = _return[1]
@@ -83,6 +101,9 @@ label phone_main:
         elif phone_state == "contacts":
             $ renpy.transition(phone_transition)
             call screen phone_contacts(all_chats)
+
+            if _return is None:
+                jump .loop
 
             $ action = _return[0]
             $ data = _return[1]
@@ -110,6 +131,9 @@ label chat_loop:
 
     label .loop:
         call screen phone_chat(current_chat)
+
+        if _return is None:
+            jump .loop
 
         $ action = _return[0]
 

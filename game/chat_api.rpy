@@ -89,22 +89,23 @@ init -1 python:
         """
         Call the proxy server with the player's message.
 
-        Uses the new structured payload format:
-        - system_prompt: sent separately (server prepends to LLM call)
-        - messages: raw chat history (server applies token windowing)
-        - user_message: the current message
-
-        The server handles model selection, token windowing, and
-        <think> tag stripping. Adapted from Yeah Buddy's
-        CompanionBot.call_llm() flow.
+        Uses the legacy payload format (messages array with system prompt
+        baked in) which the deployed Railway server handles correctly.
+        The server still does model selection and <think> tag stripping.
         """
         if system_prompt is None:
             system_prompt = DEFAULT_SYSTEM_PROMPT
 
+        ## Build the messages array with system prompt first,
+        ## then conversation history, then the current user message
+        messages = [{"role": "system", "content": system_prompt}]
+        messages.extend(conversation_history)
+        messages.append({"role": "user", "content": user_message})
+
         payload = {
-            "system_prompt": system_prompt,
-            "messages": conversation_history,
-            "user_message": user_message,
+            "messages": messages,
+            "temperature": 0.85,
+            "max_tokens": 300,
         }
 
         try:
@@ -158,10 +159,13 @@ init -1 python:
             self.system_prompt = character_config.build_system_prompt(WORLD_LORE)
             self.avatar = character_config.avatar
             self.accent_color = character_config.accent_color
+            self.portraits = character_config.portraits
+            self.portrait_index = 0
             self.messages = []          # List of ChatMessage for display
             self.is_loading = False
             self.unread_count = 0
             self._sound_pending = False
+            self._hearts_pending = False
             self.is_active = False
             self._chat_adj = ui.adjustment()
             self._needs_scroll = True
@@ -220,6 +224,7 @@ init -1 python:
             if not self.is_active:
                 self.unread_count += 1
             self._sound_pending = True
+            self._hearts_pending = True
 
             ## Tell Ren'Py to refresh the screen
             renpy.restart_interaction()
@@ -233,10 +238,11 @@ init -1 python:
         def reset(self):
             """Clear all messages and start fresh."""
             self.messages = []
-            self.api_history = []
+            clear_persistent_history(self.character_name)
             self.is_loading = False
             self.unread_count = 0
             self._sound_pending = False
+            self._hearts_pending = False
 
         def get_circle_avatar(self):
             """Return the path to this character's circular avatar."""

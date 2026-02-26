@@ -24,12 +24,13 @@ init -1 python:
     ## -----------------------------------------------------------------
     class CharacterConfig(object):
         def __init__(self, name, prompt, avatar, accent_color="#4a6cf7",
-                     format_instructions=None):
+                     format_instructions=None, portraits=None):
             self.name = name
             self.prompt = prompt
             self.avatar = avatar
             self.accent_color = accent_color
             self.format_instructions = format_instructions or DEFAULT_FORMAT_INSTRUCTIONS
+            self.portraits = portraits or []
 
         def build_system_prompt(self, world_lore):
             """
@@ -248,24 +249,32 @@ Treat our conversations we are talking via Discord and roleplaying as ourselves.
             prompt=MALLORY_PROMPT,
             avatar="images/characters/mallory.png",
             accent_color="#d4af37",
+            portraits=["images/characters/portraits/mallory_1.png", "images/characters/portraits/mallory_2.png",
+                        "images/characters/portraits/mallory_3.png", "images/characters/portraits/mallory_4.png"],
         ),
         "Rye": CharacterConfig(
             name="Rye",
             prompt=RYE_PROMPT,
             avatar="images/characters/rye.png",
             accent_color="#e74c3c",
+            portraits=["images/characters/portraits/rye_1.png", "images/characters/portraits/rye_2.png",
+                        "images/characters/portraits/rye_3.png", "images/characters/portraits/rye_4.png"],
         ),
         "Demitria": CharacterConfig(
             name="Demitria",
             prompt=DEMITRIA_PROMPT,
             avatar="images/characters/demitria.png",
             accent_color="#9b59b6",
+            portraits=["images/characters/portraits/demitria_1.png", "images/characters/portraits/demitria_2.png",
+                        "images/characters/portraits/demitria_3.png", "images/characters/portraits/demitria_4.png"],
         ),
         "Gabby": CharacterConfig(
             name="Gabby",
             prompt=GABBY_PROMPT,
             avatar="images/characters/gabby.png",
             accent_color="#1abc9c",
+            portraits=["images/characters/portraits/gabby_1.png", "images/characters/portraits/gabby_2.png",
+                        "images/characters/portraits/gabby_3.png", "images/characters/portraits/gabby_4.png"],
         ),
     }
 
@@ -280,3 +289,4 @@ default mallory_chat = ChatSession(CHARACTERS["Mallory"])
 default rye_chat = ChatSession(CHARACTERS["Rye"])
 default demitria_chat = ChatSession(CHARACTERS["Demitria"])
 default gabby_chat = ChatSession(CHARACTERS["Gabby"])
+default all_chats = [mallory_chat, rye_chat, demitria_chat, gabby_chat]

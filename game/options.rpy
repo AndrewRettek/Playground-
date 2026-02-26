@@ -21,8 +21,8 @@ define config.has_sound = True
 define config.has_music = True
 define config.has_voice = False
 
-## Main menu music (placeholder - set to None until you have audio)
-define config.main_menu_music = None
+## Main menu music — gentle ambient loop
+define config.main_menu_music = "audio/menu_ambient.wav"
 
 ## Transition settings
 define config.enter_transition = dissolve

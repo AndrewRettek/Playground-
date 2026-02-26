@@ -84,7 +84,7 @@ screen choice(items):
     vbox:
         xalign 0.5
         yalign 0.5
-        spacing 15
+        spacing 16
 
         for i in items:
             textbutton i.caption action i.action:
@@ -93,9 +93,9 @@ screen choice(items):
 
 style choice_button:
     xalign 0.5
-    background Solid("#4a90d9")
-    hover_background Solid("#66aaff")
-    padding (30, 15, 30, 15)
+    background Frame("gui/panels/button_primary.png", 20, 20, 20, 20)
+    hover_background Frame("gui/panels/button_primary_hover.png", 20, 20, 20, 20)
+    padding (32, 16, 32, 16)
 
 style choice_button_text:
     color "#ffffff"
@@ -150,29 +150,32 @@ screen main_menu():
         yalign 0.5
         xsize 750
         ysize 750
-        background Solid("#1a1a2ecc")
-        padding (60, 45, 60, 45)
+        background Frame("gui/panels/panel_dark.png", 24, 24, 24, 24)
+        padding (64, 48, 64, 48)
 
         vbox:
             xalign 0.5
-            spacing 27
+            spacing 24
 
             ## Midjourney logo
             add "images/ui/logo.png" xalign 0.5
 
-            text "v0.1.0" size 21 color "#888888" xalign 0.5
+            text "v0.1.0" size 21 color "#E8849A" xalign 0.5
 
-            null height 30
+            ## Ornate divider between version and Start
+            add "gui/panels/divider_ornate.png" xalign 0.5
+
+            null height 16
 
             textbutton "Start" action Start() xalign 0.5:
                 text_size 36
-                text_color "#4fc3f7"
-                text_hover_color "#ffffff"
+                text_color "#E8849A"
+                text_hover_color "#FFB0C0"
 
             textbutton "Quit" action Quit(confirm=True) xalign 0.5:
                 text_size 36
                 text_color "#4fc3f7"
-                text_hover_color "#ffffff"
+                text_hover_color "#E8849A"
 
 
 ## ===================================================================
@@ -189,12 +192,12 @@ screen subscription():
         yalign 0.5
         xsize 750
         ysize 525
-        background Solid("#1a3a4f")
-        padding (60, 45, 60, 45)
+        background Frame("gui/panels/panel_dark_solid.png", 24, 24, 24, 24)
+        padding (64, 48, 64, 48)
 
         vbox:
             xalign 0.5
-            spacing 22
+            spacing 24
 
             text "Subscription Key" size 42 color "#ffffff" xalign 0.5 bold True
 
@@ -202,7 +205,7 @@ screen subscription():
 
             text "Enter your subscription key to enable chatting." size 21 color "#aaaaaa" xalign 0.5 text_align 0.5
 
-            null height 15
+            null height 16
 
             if is_logged_in():
                 text "Current key: [persistent.player_token[:8]]..." size 21 color "#66cc66" xalign 0.5
@@ -212,8 +215,8 @@ screen subscription():
             textbutton "Enter Key" action Return("enter_key") xalign 0.5:
                 text_size 30
                 text_color "#ffffff"
-                background Solid("#4a90d9")
-                hover_background Solid("#66aaff")
+                background Frame("gui/panels/button_primary.png", 20, 20, 20, 20)
+                hover_background Frame("gui/panels/button_primary_hover.png", 20, 20, 20, 20)
                 xsize 300
                 text_xalign 0.5
                 ysize 60
@@ -224,7 +227,7 @@ screen subscription():
                     text_color "#ff6666"
                     text_hover_color "#ff8888"
 
-            null height 15
+            null height 16
 
             textbutton "Back" action Return("back") xalign 0.5:
                 text_size 27
@@ -274,38 +277,38 @@ screen file_slots(title):
         yalign 0.5
         xsize 1200
         ysize 750
-        background Solid("#1a3a4f")
-        padding (30, 30, 30, 30)
+        background Frame("gui/panels/panel_dark_solid.png", 24, 24, 24, 24)
+        padding (32, 32, 32, 32)
 
         vbox:
             xalign 0.5
-            spacing 15
+            spacing 16
 
             text title size 42 color "#ffffff" xalign 0.5 bold True
-            null height 15
+            null height 16
 
             grid 3 2:
                 xalign 0.5
-                spacing 22
+                spacing 24
                 transpose True
 
                 for i in range(1, 7):
                     button:
                         xsize 345
                         ysize 135
-                        background Solid("#0d2f44")
-                        hover_background Solid("#1a5276")
+                        background Frame("gui/panels/panel_slot.png", 16, 16, 16, 16)
+                        hover_background Frame("gui/panels/panel_slot_hover.png", 16, 16, 16, 16)
                         action FileAction(i)
-                        padding (15, 15, 15, 15)
+                        padding (16, 16, 16, 16)
 
                         vbox:
                             text "Slot [i]" size 24 color "#ffffff"
                             text FileTime(i, format=_("{#file_time}%B %d %Y, %H:%M"), empty=_("Empty")) size 18 color "#aaaaaa"
 
-            null height 15
+            null height 16
             hbox:
                 xalign 0.5
-                spacing 30
+                spacing 32
                 textbutton "<" action FilePagePrevious() text_color "#4fc3f7" text_size 30
                 text "Page" color "#ffffff" size 27 yalign 0.5
                 textbutton ">" action FilePageNext() text_color "#4fc3f7" text_size 30
@@ -323,28 +326,28 @@ screen preferences():
         yalign 0.5
         xsize 900
         ysize 600
-        background Solid("#1a3a4f")
-        padding (45, 45, 45, 45)
+        background Frame("gui/panels/panel_dark_solid.png", 24, 24, 24, 24)
+        padding (48, 48, 48, 48)
 
         vbox:
             xalign 0.5
-            spacing 22
+            spacing 24
 
             text "Preferences" size 42 color "#ffffff" xalign 0.5 bold True
-            null height 15
+            null height 16
 
             hbox:
-                spacing 15
+                spacing 16
                 text "Music Volume" color "#ffffff" size 27 yalign 0.5 xsize 270
-                bar value Preference("music volume") xsize 450 ysize 30
+                bar value Preference("music volume") xsize 450 ysize 32
 
             hbox:
-                spacing 15
+                spacing 16
                 text "Sound Volume" color "#ffffff" size 27 yalign 0.5 xsize 270
-                bar value Preference("sound volume") xsize 450 ysize 30
+                bar value Preference("sound volume") xsize 450 ysize 32
 
             hbox:
-                spacing 15
+                spacing 16
                 text "Fullscreen" color "#ffffff" size 27 yalign 0.5 xsize 270
                 textbutton "Toggle" action Preference("display", "toggle") text_color "#4fc3f7" text_size 27
 
@@ -362,17 +365,17 @@ screen confirm(message, yes_action, no_action):
         yalign 0.5
         xsize 600
         ysize 270
-        background Solid("#1a3a4f")
-        padding (45, 38, 45, 38)
+        background Frame("gui/panels/panel_dark_solid.png", 24, 24, 24, 24)
+        padding (48, 40, 48, 40)
 
         vbox:
             xalign 0.5
-            spacing 30
+            spacing 32
 
             text message color "#ffffff" size 30 xalign 0.5 text_align 0.5
             hbox:
                 xalign 0.5
-                spacing 45
+                spacing 48
                 textbutton "Yes" action yes_action text_color "#4fc3f7" text_size 30
                 textbutton "No" action no_action text_color "#ff6666" text_size 30
 
@@ -393,9 +396,9 @@ screen notify(message):
 
     frame:
         xalign 0.5
-        ypos 38
-        background Solid("#1a3a4fcc")
-        padding (30, 12, 30, 12)
+        ypos 40
+        background Frame("gui/panels/panel_dark.png", 24, 24, 24, 24)
+        padding (32, 16, 32, 16)
         text "[message!tq]" color "#ffffff" size 24
 
     timer 3.25 action Hide("notify")
